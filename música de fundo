@@ -1,0 +1,46 @@
+.data
+# upside down (início) # não é música de floresta, mas acho que combina (ficou um pouco travado no notebook, não sei se é problema do notebook ou do código)
+TAMANHO: .word 37
+NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64,441,62,1764,62,294,62,294,62,294,64,294,62,294,60,588,60,441,64,441,60,1764,64,294,64,294,65,441,64,294,62,441,60,294,62,441,64,441,62,1764,62,294,62,294,62,147,64,294,62,441,60,294,53,294
+TAMANHO2: 71
+NOTAS2: 60,588,67,588,64,1470,67,294,67,294,67,147,64,441,64,294,62,294,62,294,60,588,67,735,62,147,60,1176,67,294,67,147,67,294,64,441,64,294,62,294,62,294,60,588,67,588,64,1323,67,294,67,294,67,147,67,147,64,147,64,294,64,294,62,294,62,294,60,588,67,588,64,147,62,1176,67,147,67,294,67,294,67,294,64,147,64,147,64,294,64,441,64,147,62,147,60,441,50,147,52,147,55,1470,48,588,52,294,55,588,57,882,50,2499,50,147,52,441,50,147,52,882,50,588,48,588,52,294,55,1470,48,588,52,294,55,588,57,882,50,3234,48,588,50,882
+.text
+	la s0,TAMANHO		# define o endereço do número de notas
+	lw s1,0(s0)		# le o numero de notas
+	la s0,NOTAS		# define o endereço das notas
+	li t0,0			# zera o contador de notas
+	li a2,24		# define o instrumento
+	li a3,127		# define o volume
+LOOP:	beq t0,s1, chorus		# contador chegou no final? então  vá para chorus
+	lw a0,0(s0)		# le o valor da nota
+	lw a1,4(s0)		# le a duracao da nota
+	li a7,31		# define a chamada de syscall
+	ecall			# toca a nota
+	mv a0,a1		# passa a duração da nota para a pausa
+	li a7,32		# define a chamada de syscal 
+	ecall			# realiza uma pausa de a0 ms
+	addi s0,s0,8		# incrementa para o endereço da próxima nota
+	addi t0,t0,1		# incrementa o contador de notas
+	j LOOP			# volta ao loop
+
+chorus: la s0,TAMANHO2		# define o endereço do número de notas
+	lw s1,0(s0)		# le o numero de notas
+	la s0,NOTAS2		# define o endereço das notas
+	li t0,0			# zera o contador de notas
+	li a2,24		# define o instrumento
+	li a3,127		# define o volume
+
+loopch:	beq t0,s1, FIM		# contador chegou no final? então  vá para FIM
+	lw a0,0(s0)		# le o valor da nota
+	lw a1,4(s0)		# le a duracao da nota
+	li a7,31		# define a chamada de syscall
+	ecall			# toca a nota
+	mv a0,a1		# passa a duração da nota para a pausa
+	li a7,32		# define a chamada de syscal 
+	ecall			# realiza uma pausa de a0 ms
+	addi s0,s0,8		# incrementa para o endereço da próxima nota
+	addi t0,t0,1		# incrementa o contador de notas
+	j loopch		# volta ao loop
+FIM:	li a7,10		# define o syscall Exit
+	ecall			# exit
+
