@@ -1,0 +1,52 @@
+	
+# som de tiro
+	li a0,50			# nota
+	li a1,1000			# duração
+	li a2,127			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+	li a0,85			# nota
+	li a1,300			# duração
+	li a2,127			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+# som de ganho de pontos
+	li a0,90			# nota
+	li a1,370			# duração
+	li a2,8			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+# som de perdendo pontos
+  	li a0,50			# nota
+	li a1,1500			# duração
+	li a2,12			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+	li a0,30			# nota
+	li a1,1500			# duração
+	li a2,12			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+  
+  
+  
+  
+  
+# não sei para que usar, mas eu amei esse:
+	li a0,60			# nota
+	li a1,1300			# duração
+	li a2,55			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+	li a0,62			# nota
+	li a1,1250			# duração
+	li a2,55			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
