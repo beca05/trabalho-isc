@@ -12,7 +12,20 @@
 	li a3,127			# define o volume
 	li a7,31			# define a syscall
 	ecall
+
 # som de ganho de pontos
+	li a0,90			# nota
+	li a1,370			# duração
+	li a2,8			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
+	li a0,87			# nota
+	li a1,370			# duração
+	li a2,8			# define o instrumento
+	li a3,127			# define o volume
+	li a7,31			# define a syscall
+	ecall
 	li a0,90			# nota
 	li a1,370			# duração
 	li a2,8			# define o instrumento
