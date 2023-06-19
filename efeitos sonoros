@@ -69,7 +69,7 @@
 
   
   
-# não sei para que usar, mas eu amei esse:
+# não sei para que usar, mas eu amei esse, talvez, para mudança de fase:
 	li a0,60			# nota
 	li a1,1300			# duração
 	li a2,55			# define o instrumento
@@ -82,3 +82,4 @@
 	li a3,127			# define o volume
 	li a7,31			# define a syscall
 	ecall
+
