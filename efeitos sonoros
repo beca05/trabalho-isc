@@ -1,4 +1,3 @@
-	
 # som de tiro
 	li a0,50			# nota
 	li a1,1000			# duração
@@ -82,4 +81,3 @@
 	li a3,127			# define o volume
 	li a7,31			# define a syscall
 	ecall
-
