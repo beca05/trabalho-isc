@@ -6,8 +6,6 @@
 .include "./script/Imagens/arquivos .data/personagem_w.data"
 .include "./script/Imagens/arquivos .data/personagem_s.data"
 .include "./script/Imagens/arquivos .data/fundo.data"
-.include "./script/Imagens/arquivos .data/chave0.data"
-.include "./script/Imagens/arquivos .data/chave1.data"
 TITULO_FASE: .string "FASE 1"
 CHAR_POS: .half 16,16
 OLD_CHAR_POS: .half 16,16
