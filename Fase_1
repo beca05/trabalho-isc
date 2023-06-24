@@ -1,24 +1,57 @@
 .include "MACROSv21.s"
+
 .data
+
+# MAPA
 .include "./script/Imagens/arquivos .data/ideia_fase1.data"
+.include "./script/Imagens/arquivos .data/fundo.data"
+.include "./script/Imagens/arquivos .data/porta_ws.data"
+.include "./script/Imagens/arquivos .data/porta_ad.data"
+
+# PERSONAGEM PRINCIPAL
 .include "./script/Imagens/arquivos .data/personagem_a.data"
 .include "./script/Imagens/arquivos .data/personagem_d.data"
 .include "./script/Imagens/arquivos .data/personagem_w.data"
 .include "./script/Imagens/arquivos .data/personagem_s.data"
-.include "./script/Imagens/arquivos .data/fundo.data"
+
+# INIMIGO
+.include "./script/Imagens/arquivos .data/cogumelo_s.data"
+.include "./script/Imagens/arquivos .data/cogumelo_w.data"
+.include "./script/Imagens/arquivos .data/cogumelo_a.data"
+.include "./script/Imagens/arquivos .data/cogumelo_d.data"
+.include "./script/Imagens/arquivos .data/ervilha_a.data"
+.include "./script/Imagens/arquivos .data/ervilha_d.data"
+
+# ITENS
+.include "./script/Imagens/arquivos .data/chave.data"
+.include "./script/Imagens/arquivos .data/moeda.data"
+
+# MENU 
 TITULO_FASE: .string "FASE 1"
+
+# POSIÇÕES
 CHAR_POS: .half 16,16
 OLD_CHAR_POS: .half 16,16
+COG1: .half 64,64
+CHAVE1: .half 192,96
+CHAVE2: .half 64,160
+MOEDA1: .half 112,16
+MOEDA2: .half 48,128
+PORTA1: .half 16,112
+PORTA2: .half 128,96
+
 
 .text
-SETUP:		la a0,ideia_fase1
+SETUP:		
+# Printa a imagem do mapa
+		la a0,ideia_fase1
 		li a1,0
 		li a2,0
 		li a3,0
 		call PRINT
 		li a3,1
 		call PRINT
-
+# Adiciona o título da fase
 		li a7,104        
 		la a0,TITULO_FASE        
 		li a1,252
@@ -33,15 +66,87 @@ SETUP:		la a0,ideia_fase1
 		li a3,0x00FF
 		li a4,1
 		ecall
+# Printa o personagem na posição inicial		
+		la t3,CHAR_POS
+		la a0,personagem_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+		
+GAME_LOOP:	
+# Faz a chamada do teclado e a movimentação
+		call KEY
+		
+# Printa a 1/2 chave em sua posição
+		la t3,CHAVE1
+		la a0,chave
 
-GAME_LOOP:	call KEY
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+# Printa a 2/2 chave em sua posição
+		la t3,CHAVE2
+		la a0,chave
 
-KEY:		li t1,0xFF200000
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+		
+#Printa a 1/2 moeda em sua posição
+		la t3,MOEDA1
+		la a0,moeda
+
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+# Printa a 2/2 moeda em sua posição
+		la t3,MOEDA2
+		la a0,moeda
+
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+
+# Printa o 1/? cogumelo em sua posição inicial
+		la t3,COG1
+		la a0,cogumelo_s
+
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+		
+# Printa a 1/2 porta
+		la t3,PORTA1
+		la a0,porta_ws
+
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+# Printa a 2/2 porta
+		la t3,PORTA2
+		la a0,porta_ad
+
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
+		
+KEY:	
+# Faz a verificação se alguma tecla está pressionada	
+		li t1,0xFF200000
 		lw t0,0(t1)
 		andi t0,t0,0x0001
 		beq t0,zero,FIM
 		lw t2,4(t1)
-		
+
+# Compara a tecla pressionada com as teclas de movimento		
 		li t0,'a'
 		beq t2,t0,CHAR_ESQ
 		
@@ -56,7 +161,9 @@ KEY:		li t1,0xFF200000
 
 FIM:		ret
 
-CHAR_ESQ:	la t0,CHAR_POS
+CHAR_ESQ:	
+# Faz a movimentação do personagem para esquerda alterando a sprite		
+		la t0,CHAR_POS
 		la t1,OLD_CHAR_POS
 		lw t2,0(t0)
 		sw t2,0(t1)
@@ -90,7 +197,9 @@ CHAR_ESQ:	la t0,CHAR_POS
 		
 		j GAME_LOOP
 		
-CHAR_DIR:	la t0,CHAR_POS
+CHAR_DIR:	
+# Faz a movimentação do personagem para direita alterando a sprite			
+		la t0,CHAR_POS
 		la t1,OLD_CHAR_POS
 		lw t2,0(t0)
 		sw t2,0(t1)
@@ -124,7 +233,9 @@ CHAR_DIR:	la t0,CHAR_POS
 		
 		j GAME_LOOP
 
-CHAR_CIMA:	la t0,CHAR_POS
+CHAR_CIMA:	
+# Faz a movimentação do personagem para cima alterando a sprite	
+		la t0,CHAR_POS
 		la t1,OLD_CHAR_POS
 		lw t2,0(t0)
 		sw t2,0(t1)
@@ -158,7 +269,9 @@ CHAR_CIMA:	la t0,CHAR_POS
 		
 		j GAME_LOOP	
 
-CHAR_BAIXO:	la t0,CHAR_POS
+CHAR_BAIXO:	
+# Faz a movimentação do personagem para baixo alterando a sprite	
+		la t0,CHAR_POS
 		la t1,OLD_CHAR_POS
 		lw t2,0(t0)
 		sw t2,0(t1)
@@ -190,9 +303,11 @@ CHAR_BAIXO:	la t0,CHAR_POS
 		xori a3,a3,1
 		call PRINT
 		
-		j GAME_LOOP	
+		j GAME_LOOP
 
-PRINT:		li t0,0xFF0
+PRINT:		
+# Executa os procedimentos para printar		
+		li t0,0xFF0
 		add t0,t0,a3
 		slli t0,t0,20
 		
@@ -210,7 +325,9 @@ PRINT:		li t0,0xFF0
 		lw t4,0(a0)
 		lw t5,4(a0)
 	
-PRINT_LINHA:	lw t6,0(t1)
+PRINT_LINHA:	
+# Printa as linhas da imagem até o final (complementa a label PRINT)		
+		lw t6,0(t1)
 		sw t6,0(t0)
 		
 		addi t0,t0,4
