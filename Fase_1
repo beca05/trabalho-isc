@@ -28,6 +28,8 @@
 
 # MENU 
 TITULO_FASE: .string "FASE 1"
+PONTOS: .string "PONTOS:"
+VIDAS: .string "VIDAS:"
 
 # POSIÇÕES
 CHAR_POS: .half 16,16
@@ -64,6 +66,36 @@ SETUP:
 		li a1,252
 		li a2,9 
 		li a3,0x00FF
+		li a4,1
+		ecall
+# Adiciona a string dos pontos da fase
+		li a7,104        
+		la a0,PONTOS       
+		li a1,230
+		li a2,30 
+		li a3,0x0059
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,PONTOS        
+		li a1,230
+		li a2,30 
+		li a3,0x0059
+		li a4,1
+		ecall
+# Adiciona a string de vidas da fase
+		li a7,104        
+		la a0,VIDAS       
+		li a1,230
+		li a2,90 
+		li a3,0x0059
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,VIDAS        
+		li a1,230
+		li a2,90 
+		li a3,0x0059
 		li a4,1
 		ecall
 # Printa o personagem na posição inicial		
