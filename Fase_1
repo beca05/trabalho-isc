@@ -71,31 +71,48 @@ SETUP:
 # Adiciona a string dos pontos da fase
 		li a7,104        
 		la a0,PONTOS       
-		li a1,230
-		li a2,30 
-		li a3,0x0059
+		li a1,250
+		li a2,50 
+		li a3,0x0090
 		li a4,0
 		ecall
 		li a7,104        
 		la a0,PONTOS        
-		li a1,230
-		li a2,30 
-		li a3,0x0059
+		li a1,250
+		li a2,50 
+		li a3,0x0090
 		li a4,1
 		ecall
+
+# Adiciona a string de chaves da fase
+		li a7,104        
+		la a0,CHAVES       
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,CHAVES        
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,1
+		ecall
+
 # Adiciona a string de vidas da fase
 		li a7,104        
 		la a0,VIDAS       
-		li a1,230
-		li a2,90 
-		li a3,0x0059
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
 		li a4,0
 		ecall
 		li a7,104        
 		la a0,VIDAS        
-		li a1,230
-		li a2,90 
-		li a3,0x0059
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
 		li a4,1
 		ecall
 # Printa o personagem na posição inicial		
