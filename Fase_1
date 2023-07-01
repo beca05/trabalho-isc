@@ -7,6 +7,7 @@
 .include "./script/Imagens/arquivos .data/fundo.data"
 .include "./script/Imagens/arquivos .data/porta_ws.data"
 .include "./script/Imagens/arquivos .data/porta_ad.data"
+.include "matriz1.s"
 
 # PERSONAGEM PRINCIPAL
 .include "./script/Imagens/arquivos .data/personagem_a.data"
@@ -28,33 +29,37 @@
 
 # MENU 
 TITULO_FASE: .string "FASE 1"
-PONTOS: .string "PONTOS:"
-VIDAS: .string "VIDAS:"
 
 # POSIÇÕES
-CHAR_POS: .half 16,16
+CHAR_POS: .half 16,16		# posição do personagem (x,y)
 OLD_CHAR_POS: .half 16,16
 COG1: .half 64,64
 CHAVE1: .half 192,96
 CHAVE2: .half 64,160
 MOEDA1: .half 112,16
-MOEDA2: .half 48,128
+#MOEDA2: .half 32,208
 PORTA1: .half 16,112
 PORTA2: .half 128,96
 
-
 .text
-SETUP:		
-# Printa a imagem do mapa
-		la a0,ideia_fase1
+
+SETUP: 		
+# Carrega a matriz da fase 1 para o registrador s1
+		la s1, MATRIZ		
+		addi s1,s1,8
+
+# Printa a imagem do mapa, alternando os frames
+		la a0,ideia_fase1	
 		li a1,0
 		li a2,0
 		li a3,0
+		li a4,320
+		li a4,240
 		call PRINT
 		li a3,1
 		call PRINT
-# Adiciona o título da fase
-		li a7,104        
+		
+		li a7,104        	# printa o título da fase 
 		la a0,TITULO_FASE        
 		li a1,252
 		li a2,9 
@@ -68,135 +73,28 @@ SETUP:
 		li a3,0x00FF
 		li a4,1
 		ecall
-# Adiciona a string dos pontos da fase
-		li a7,104        
-		la a0,PONTOS       
-		li a1,250
-		li a2,50 
-		li a3,0x0090
-		li a4,0
-		ecall
-		li a7,104        
-		la a0,PONTOS        
-		li a1,250
-		li a2,50 
-		li a3,0x0090
-		li a4,1
-		ecall
-
-# Adiciona a string de chaves da fase
-		li a7,104        
-		la a0,CHAVES       
-		li a1,250
-		li a2,110 
-		li a3,0x00a0
-		li a4,0
-		ecall
-		li a7,104        
-		la a0,CHAVES        
-		li a1,250
-		li a2,110 
-		li a3,0x00a0
-		li a4,1
-		ecall
-
-# Adiciona a string de vidas da fase
-		li a7,104        
-		la a0,VIDAS       
-		li a1,252
-		li a2,170 
-		li a3,0x00b0
-		li a4,0
-		ecall
-		li a7,104        
-		la a0,VIDAS        
-		li a1,252
-		li a2,170 
-		li a3,0x00b0
-		li a4,1
-		ecall
-# Printa o personagem na posição inicial		
-		la t3,CHAR_POS
+		
+		la t3,CHAR_POS		# printa o personagem na posição inicial
 		la a0,personagem_s
 		lh a1,0(t3)
 		lh a2,2(t3)
 		mv a3,s0
 		call PRINT
 		
-GAME_LOOP:	
-# Faz a chamada do teclado e a movimentação
-		call KEY
-		
-# Printa a 1/2 chave em sua posição
-		la t3,CHAVE1
-		la a0,chave
 
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-# Printa a 2/2 chave em sua posição
-		la t3,CHAVE2
-		la a0,chave
+GAME_LOOP:	call KEY
 
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-		
-#Printa a 1/2 moeda em sua posição
-		la t3,MOEDA1
-		la a0,moeda
 
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-# Printa a 2/2 moeda em sua posição
-		la t3,MOEDA2
-		la a0,moeda
-
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-
-# Printa o 1/? cogumelo em sua posição inicial
-		la t3,COG1
-		la a0,cogumelo_s
-
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-		
-# Printa a 1/2 porta
-		la t3,PORTA1
-		la a0,porta_ws
-
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-# Printa a 2/2 porta
-		la t3,PORTA2
-		la a0,porta_ad
-
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-		
-KEY:	
-# Faz a verificação se alguma tecla está pressionada	
-		li t1,0xFF200000
+KEY:		
+# Faz a chamada do teclado e guarda a tecla pressionada no t2
+		li t1,0xFF200000	
 		lw t0,0(t1)
 		andi t0,t0,0x0001
 		beq t0,zero,FIM
 		lw t2,4(t1)
-
-# Compara a tecla pressionada com as teclas de movimento		
-		li t0,'a'
+		
+# Compara as teclas para chamar a movimentação	
+		li t0,'a'		
 		beq t2,t0,CHAR_ESQ
 		
 		li t0,'d'
@@ -210,153 +108,181 @@ KEY:
 
 FIM:		ret
 
-CHAR_ESQ:	
-# Faz a movimentação do personagem para esquerda alterando a sprite		
-		la t0,CHAR_POS
-		la t1,OLD_CHAR_POS
-		lw t2,0(t0)
-		sw t2,0(t1)
+CHAR_ESQ:	la t0,CHAR_POS				
+		la t1,OLD_CHAR_POS			
+		lh t2,0(t0)		# carrega em t2 o x da posição do personagem			
+		lh t3,2(t0)		# carrega em t3 o y da posição do personagem
 		
-		lh t1,0(t0)
-		addi t1,t1,-16
-		sh t1,0(t0)
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
 		
-		xori s0,s0,1
+		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t3,2(t1)
+		sh s4,0(t0)
 		
-		la t3,CHAR_POS
+		xori s0,s0,1 		# alterna os frames
+								
+		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
 		la a0,personagem_a
-
-		lh a1,0(t3)
-		lh a2,2(t3)
+		lh a1,0(t0)
+		lh a2,2(t0) 
 		mv a3,s0
+		li a4,16		# largura do personagem
+		li a5,16		# altura do personagem
 		call PRINT
 		
-		li t0,0xFF200604
-		sw s0,0(t0)
-		
-		la t3,OLD_CHAR_POS
-		
+		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
 		la a0,fundo
-		lh a1,0(t3)
-		lh a2,2(t3)
-		
+		lh a1,0(t0)
+		lh a2,2(t0) 
 		mv a3,s0
 		xori a3,a3,1
 		call PRINT
-		
+	
+		li t0,0xFF200604
+		sw s0,0(t0)
+	
 		j GAME_LOOP
+
+CHAR_DIR:	la t0,CHAR_POS				
+		la t1,OLD_CHAR_POS			
+		lh t2,0(t0)		# carrega em t2 o x da posição do personagem		
+		lh t3,2(t0)		# carrega em t3 o y da posição do personagem
+
 		
-CHAR_DIR:	
-# Faz a movimentação do personagem para direita alterando a sprite			
-		la t0,CHAR_POS
-		la t1,OLD_CHAR_POS
-		lw t2,0(t0)
-		sw t2,0(t1)
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,16		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
 		
-		lh t1,0(t0)
-		addi t1,t1,16
-		sh t1,0(t0)
+		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t3,2(t1)
+		sh s4,0(t0)
 		
-		xori s0,s0,1
-		
-		la t3,CHAR_POS
+		xori s0,s0,1 		# alterna os frames
+								
+		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
 		la a0,personagem_d
-
-		lh a1,0(t3)
-		lh a2,2(t3)
+		lh a1,0(t0)
+		lh a2,2(t0) 
 		mv a3,s0
+		li a4,16		# largura do personagem
+		li a5,16		# altura do personagem
 		call PRINT
 		
-		li t0,0xFF200604
-		sw s0,0(t0)
-		
-		la t3,OLD_CHAR_POS
-		
+		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
 		la a0,fundo
-		lh a1,0(t3)
-		lh a2,2(t3)
-		
+		lh a1,0(t0)
+		lh a2,2(t0) 
 		mv a3,s0
 		xori a3,a3,1
 		call PRINT
-		
+	
+		li t0,0xFF200604
+		sw s0,0(t0)
+	
 		j GAME_LOOP
 
-CHAR_CIMA:	
-# Faz a movimentação do personagem para cima alterando a sprite	
-		la t0,CHAR_POS
-		la t1,OLD_CHAR_POS
-		lw t2,0(t0)
-		sw t2,0(t1)
+CHAR_CIMA:	la t0, CHAR_POS
+		la t1, OLD_CHAR_POS
+		lh t2,0(t0)		# carrega em t2 o x da posição do personagem				
+		lh t3,2(t0)		# carrega em t3 o y da posição do personagem
 		
-		lh t1,2(t0)
-		addi t1,t1,-16
-		sh t1,2(t0)
 		
-		xori s0,s0,1
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
 		
-		la t3,CHAR_POS
+		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t3,2(t1)
+		sh s4,2(t0)
+
+		xori s0,s0,1 		# alterna os frames
+								
+		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
 		la a0,personagem_w
-
-		lh a1,0(t3)
-		lh a2,2(t3)
+		lh a1,0(t0)
+		lh a2,2(t0) 
 		mv a3,s0
+		li a4,16		# largura do personagem
+		li a5,16		# altura do personagem
 		call PRINT
 		
-		li t0,0xFF200604
-		sw s0,0(t0)
-		
-		la t3,OLD_CHAR_POS
-		
+		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
 		la a0,fundo
-		lh a1,0(t3)
-		lh a2,2(t3)
-		
+		lh a1,0(t0)
+		lh a2,2(t0) 
 		mv a3,s0
 		xori a3,a3,1
 		call PRINT
 		
-		j GAME_LOOP	
-
-CHAR_BAIXO:	
-# Faz a movimentação do personagem para baixo alterando a sprite	
-		la t0,CHAR_POS
-		la t1,OLD_CHAR_POS
-		lw t2,0(t0)
-		sw t2,0(t1)
-		
-		lh t1,2(t0)
-		addi t1,t1,16
-		sh t1,2(t0)
-
-		xori s0,s0,1
-		
-		la t3,CHAR_POS
-		la a0,personagem_s
-
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
-		call PRINT
-		
 		li t0,0xFF200604
 		sw s0,0(t0)
-		
-		la t3,OLD_CHAR_POS
-		
-		la a0,fundo
-		lh a1,0(t3)
-		lh a2,2(t3)
-		
-		mv a3,s0
-		xori a3,a3,1
-		call PRINT
-		
+	
 		j GAME_LOOP
 
-PRINT:		
-# Executa os procedimentos para printar		
-		li t0,0xFF0
+CHAR_BAIXO:	la t0, CHAR_POS
+		la t1, OLD_CHAR_POS
+		lh t2,0(t0)		# carrega em t2 o x da posição do personagem	
+		lh t3, 2(t0)		# carrega em t3 o y da posição do personagem
+		
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,16		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
+		
+		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t3, 2(t1)
+		sh s4,2(t0)
+		
+		xori s0,s0,1 		# alterna os frames
+								
+		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
+		la a0,personagem_s
+		lh a1,0(t0)
+		lh a2,2(t0) 
+		mv a3,s0
+		li a4,16		# largura do personagem
+		li a5,16		# altura do personagem
+		call PRINT
+		
+		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
+		la a0,fundo
+		lh a1,0(t0)
+		lh a2,2(t0) 
+		mv a3,s0
+		xori a3,a3,1
+		call PRINT
+		
+		li t0,0xFF200604
+		sw s0,0(t0)
+	
+		j GAME_LOOP
+		
+PRINT:		li t0,0xFF0
 		add t0,t0,a3
 		slli t0,t0,20
 		
@@ -374,9 +300,7 @@ PRINT:
 		lw t4,0(a0)
 		lw t5,4(a0)
 	
-PRINT_LINHA:	
-# Printa as linhas da imagem até o final (complementa a label PRINT)		
-		lw t6,0(t1)
+PRINT_LINHA:	lw t6,0(t1)
 		sw t6,0(t0)
 		
 		addi t0,t0,4
@@ -395,3 +319,4 @@ PRINT_LINHA:
 		ret
 		
 .include "SYSTEMv21.s"
+
