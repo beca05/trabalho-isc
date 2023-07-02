@@ -1,0 +1,125 @@
+# PONTOS
+tam_pontos: .half 20
+pontos: .word 50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000
+
+# POSIÇÕES
+CHAR_POS: .half 16,16
+OLD_CHAR_POS: .half 16,16
+COG1: .half 64,64
+CHAVE1: .half 192,96
+CHAVE2: .half 64,160
+MOEDA1: .half 112,16
+MOEDA2: .half 48,128
+PORTA1: .half 16,112
+PORTA2: .half 128,96
+  
+# não sei se é melhor colocar antes ou depois de conferir o movimento e executar a movimentação
+PERSONAGEM_PEGA_MOEDA_1: la t0, CHAR_POS
+		lh t1, 0(t0) # pega a posição da linha
+		lh t2, 4(t0) # pega a posição da coluna
+		la t0, MOEDA1
+		lw t3, 0(t0)
+		lw t4, 4(t0)
+		beq t1, t3, compara_coluna
+		j PERSONAGEM_PEGA_CHAVE_1 # QUANDO O CÓDIGO DER CERTO, TEM QUE IR PARA A LABEL DA PRÓX MOEDA
+compara_coluna: beq t2, t4, moeda_1
+		j PERSONAGEM_PEGA_CHAVE_1
+# apliquei as mesmas medidas de tampar personagem para tampar a moeda (não sei se funciona!)
+# medo: cobrir o personagem quando estiver na posição da moeda
+	moeda_1: li t0,0xFF200604 
+		sw s0,0(t0)
+		
+		la t3,OLD_CHAR_POS
+		
+		la a0,fundo
+		lh a1,0(t3)
+		lh a2,2(t3)
+		
+		mv a3,s0
+		xori a3,a3,1
+		call PRINT
+		# som de ganho de pontos
+		li a0,88			# nota
+		li a1,370			# duração
+		li a2,8			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,370			# duração
+		li a2,8				# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,88			# nota
+		li a1,370			# duração
+		li a2,8			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+# objetivo: printar a nova quantidade de pontos
+#print_pontos:		
+		la s0, pontos
+		li a7, 101		# não sei se essa chamada funciona, mas teoricamente é para printar números
+# eu coloquei esse move, porque o s1 é incrementado, enquanto o s0, não, ou seja, o s0 não serve para pegar as diferentes pontuações
+# logo, o s0 pegaria apenas a mesma posição mesmo que incrementado, porque no início do print_pontos teria seu conteúdo
+# substituído pelo conteúdo da label
+# não sei se o move gera o mesmo problema só que para o s1 e também não sei se esse registrador já está sendo usado no código
+# outro problema: como apagar a pontuação que havia sido printada antes da atual?
+		mv s0, s1 		
+		lw a0, 0(s1)
+		li a1, 260
+		li a2, 78 
+		li a3, 0x0059
+		li a4, 0
+		ecall
+		la s0, pontos
+		li a7, 101
+		mv s0, s1 		
+		lw a0, 0(s0)
+		li a1, 260
+		li a2, 78
+		li a3, 0x0059
+		li a4, 1
+		ecall
+		addi s1,s1, 4 		# vai para a próxima posição de memória
+		j GAME_LOOP		# não coloquei pega_chave, porque a moeda e a chave não podem estar na mesma posição
+PERSONAGEM_PEGA_CHAVE_1: la t0, CHAR_POS
+		lh t1, 0(t0) # pega a posição da linha
+		lh t2, 4(t0) # pega a posição da coluna
+		la t0, CHAVE1
+		lw t3, 0(t0)
+		lw t4, 4(t0)
+		beq t1, t3, compara_coluna_chave
+		j GAME_LOOP # quando tiver o código da próx chave, tem que pular para tal label
+compara_coluna_chave: beq t2, t4, print_cont_chave_1
+		j GAME_LOOP
+print_cont_chave_1: 		# problema: não sei como apagar o que já havia colocado antes
+		li a7,101        
+		li a0,1       
+		li a1,270
+		li a2,138
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,101      
+		li a0,1        
+		li a1,270
+		li a2,138 
+		li a3,0x00a0
+		li a4,1
+		ecall
+# peguei o mesmo código de tampar o personagem na sua mudança de posição com a intenção de aplicá-lo para a chave
+# ou seja, quando o personagem passasse pela chave, esta seria apagada (o fundo a tamparia)
+		li t0,0xFF200604 
+		sw s0,0(t0)
+		
+		la t3,OLD_CHAR_POS
+		
+		la a0,fundo
+		lh a1,0(t3)
+		lh a2,2(t3)
+		
+		mv a3,s0
+		xori a3,a3,1
+		call PRINT			
