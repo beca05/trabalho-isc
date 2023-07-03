@@ -8,32 +8,35 @@ TAMANHO: .word 37
 NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64,441,62,1764,62,294,62,294,62,294,64,294,62,294,60,588,60,441,64,441,60,1764,64,294,64,294,65,441,64,294,62,441,60,294,62,441,64,441,62,1764,62,294,62,294,62,147,64,294,62,441,60,294,53,294
 
 # MAPA
-.include "./script/Imagens/arquivos .data/ideia_fase1.data"
-.include "./script/Imagens/arquivos .data/fundo.data"
-.include "./script/Imagens/arquivos .data/porta_ws.data"
-.include "./script/Imagens/arquivos .data/porta_ad.data"
+.include "ideia_fase1.data"
+.include "fundo.data"
+.include "porta_ws.data"
+.include "porta_ad.data"
 .include "matriz1.s"
 
+
 # PERSONAGEM PRINCIPAL
-.include "./script/Imagens/arquivos .data/personagem_a.data"
-.include "./script/Imagens/arquivos .data/personagem_d.data"
-.include "./script/Imagens/arquivos .data/personagem_w.data"
-.include "./script/Imagens/arquivos .data/personagem_s.data"
+.include "personagem_a.data"
+.include "personagem_d.data"
+.include "personagem_w.data"
+.include "personagem_s.data"
 
 # INIMIGO
-.include "./script/Imagens/arquivos .data/cogumelo_s.data"
-.include "./script/Imagens/arquivos .data/cogumelo_w.data"
-.include "./script/Imagens/arquivos .data/cogumelo_a.data"
-.include "./script/Imagens/arquivos .data/cogumelo_d.data"
-.include "./script/Imagens/arquivos .data/ervilha_a.data"
-.include "./script/Imagens/arquivos .data/ervilha_d.data"
+.include "cogumelo_s.data"
+.include "cogumelo_w.data"
+.include "cogumelo_a.data"
+.include "cogumelo_d.data"
+.include "ervilha_a.data"
+.include "ervilha_d.data"
 
 # ITENS
-.include "./script/Imagens/arquivos .data/chave.data"
-.include "./script/Imagens/arquivos .data/moeda.data"
+.include "chave.data"
+.include "moeda.data"
 
 # MENU 
 TITULO_FASE: .string "FASE 1"
+PONTOS: .string "PONTOS:"
+VIDAS: .string "VIDAS:"
 
 # POSIÇÕES
 CHAR_POS: .half 16,16		# posição do personagem (x,y)
@@ -88,7 +91,7 @@ LOOP:	beq t0,s1,SETUP		# contador chegou no final? então  vá para setup
 
 SETUP: 		
 # Carrega a matriz da fase 1 para o registrador s1
-		la s1, MATRIZ		
+		la s1, matriz1		
 		addi s1,s1,8
 
 # Printa a imagem do mapa, alternando os frames
@@ -123,6 +126,54 @@ SETUP:
 		lh a2,2(t3)
 		mv a3,s0
 		call PRINT
+	
+# Adiciona a string dos pontos da fase
+		li a7,104        
+		la a0,PONTOS       
+		li a1,250
+		li a2,50 
+		li a3,0x0090
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,PONTOS        
+		li a1,250
+		li a2,50 
+		li a3,0x0090
+		li a4,1
+		ecall
+
+# Adiciona a string de chaves da fase
+		li a7,104        
+		la a0,CHAVES       
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,CHAVES        
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,1
+		ecall
+
+# Adiciona a string de vidas da fase
+		li a7,104        
+		la a0,VIDAS       
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,VIDAS        
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
+		li a4,1
+		ecall
 		
 
 GAME_LOOP:	call KEY
@@ -362,4 +413,3 @@ PRINT_LINHA:	lw t6,0(t1)
 		ret
 		
 .include "SYSTEMv21.s"
-
