@@ -46,6 +46,7 @@ MOEDA2: .half 32,208
 MOEDA3: .half 48,128
 PORTA1: .half 16,112
 PORTA2: .half 128,96
+.include "MACROSv21.s"
 
 .text
 
@@ -118,6 +119,68 @@ SETUP:
 		li a3,0x00FF
 		li a4,1
 		ecall
+
+# Adiciona a string dos pontos da fase
+		li a7,104        
+		la a0,PONTOS       
+		li a1,250
+		li a2,50 
+		li a3,0x0090
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,PONTOS        
+		li a1,250
+		li a2,50 
+		li a3,0x0090
+		li a4,1
+		ecall
+
+# Adiciona a string de chaves da fase
+		li a7,104        
+		la a0,CHAVES       
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,CHAVES        
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,1
+		ecall
+		li a7,104        
+		la a0,NUM_CHAVES       
+		li a1,265
+		li a2,140
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,NUM_CHAVES        
+		li a1,265
+		li a2,140
+		li a3,0x00a0
+		li a4,1
+		ecall
+
+# Adiciona a string de vidas da fase
+		li a7,104        
+		la a0,VIDAS       
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,VIDAS        
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
+		li a4,1
+		ecall
 		
 		la t3,CHAR_POS		# printa o personagem na posição inicial
 		la a0,personagem_s
@@ -164,7 +227,6 @@ SETUP:
 		lh a2,2(t3)
 		li a3,1
 		call PRINT
-		
 
 GAME_LOOP:	call KEY
 		j GAME_LOOP
@@ -379,42 +441,44 @@ CHAR_BAIXO:	la t0, CHAR_POS
 		
 		li t0,0xFF200604
 		sw s0,0(t0)
-	
+# verificação se o personagem passou pela chave ou pela moeda
 		li t5,2
-		beq s3,t5,COLETA_CHAVE
+		beq s3,t5,COLETA_CHAVE # se a posição do personagem corresponder à posição da chave, onde a matriz é 2, há coleta de chave
 		li t5,3
-		beq s3,t5,COLETA_MOEDA
+		beq s3,t5,COLETA_MOEDA 	# se a posição do personagem corresponder à posição da moeda, onde a matriz é 3, há coleta de moeda
 		
-		j GAME_LOOP
+		j GAME_LOOP		# caso não esteja nas posições em questão, volta para o GAME_LOOP
 		
-COLETA_CHAVE:	li a7,104        	# printa o título da fase 
-		la a0,FRASE1        
-		li a1,252
-		li a2,27 
-		li a3,0x00FF
-		li a4,0
+COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra nessa label
+		li a7,101       	# chamada para printar inteiro 	 
+		mv a0, s5 		# coloca a pontuação no registrador a0
+		li a1,250		# coluna
+		li a2,80		# linha
+		li a3,0x0090		# cor
+		li a4,0			# frame
 		ecall
-		li a7,104        
-		la a0,FRASE1     
-		li a1,252
-		li a2,27 
-		li a3,0x00FF
+		li a7,101        	 
+		mv a0, s5   
+		li a1,250
+		li a2,80
+		li a3,0x0090
 		li a4,1
 		ecall
-		j GAME_LOOP
-		
-COLETA_MOEDA:	li a7,104        	# printa o título da fase 
-		la a0,FRASE2        
-		li a1,252
-		li a2,45
-		li a3,0x00FF
+		j GAME_LOOP	
+
+COLETA_CHAVE:	addi s6, s6, 1
+		li a7,101        	 
+		mv a0, s6      
+		li a1,250
+		li a2,140 
+		li a3,0x00a0
 		li a4,0
 		ecall
-		li a7,104        
-		la a0,FRASE2     
-		li a1,252
-		li a2,45 
-		li a3,0x00FF
+		li a7,101        	 
+		mv a0, s6    
+		li a1,250
+		li a2,140 
+		li a3,0x00a0
 		li a4,1
 		ecall
 		j GAME_LOOP	
@@ -456,4 +520,3 @@ PRINT_LINHA:	lw t6,0(t1)
 		ret
 		
 .include "SYSTEMv21.s"
-
