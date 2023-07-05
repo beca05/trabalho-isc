@@ -32,8 +32,10 @@ NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64
 
 # MENU 
 TITULO_FASE: .string "FASE 1"
-FRASE1: .string "CHAVE"
-FRASE2: .string "MOEDA"
+CHAVES: .string "CHAVES:"
+PONTOS: .string "PONTOS:"
+VIDAS: .string "VIDAS:"
+NUM_CHAVES: .string "/2"
 
 # POSIÇÕES
 CHAR_POS: .half 16,16		# posição do personagem (x,y)
@@ -367,6 +369,8 @@ CHAR_CIMA:	la t0, CHAR_POS
 		lb s3,0(s2)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
+		li t5,4
+		beq s3,t5,VERIFICACAO_SAIDA1
 		
 		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
@@ -481,7 +485,43 @@ COLETA_CHAVE:	addi s6, s6, 1
 		li a3,0x00a0
 		li a4,1
 		ecall
-		j GAME_LOOP	
+		j GAME_LOOP
+
+VERIFICACAO_SAIDA1:	li t5,2			# atribui ao t5 a quantidade de chaves que há na fase
+			beq s6,t5,SAIDA1	# compara se todas as chaves já foram coletados, se sim vai para a saída, se não retorna para o game loop
+			j GAME_LOOP
+
+SAIDA1:		
+# Move o personagem para o bloco da saída		
+		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t3,2(t1)
+		sh s4,2(t0)
+
+		xori s0,s0,1 		# alterna os frames
+								
+		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
+		la a0,personagem_w
+		lh a1,0(t0)
+		lh a2,2(t0) 
+		mv a3,s0
+		li a4,16		# largura do personagem
+		li a5,16		# altura do personagem
+		call PRINT
+		
+		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
+		la a0,fundo
+		lh a1,0(t0)
+		lh a2,2(t0) 
+		mv a3,s0
+		xori a3,a3,1
+		call PRINT
+		
+		li t0,0xFF200604
+		sw s0,0(t0)
+
+# Faz a syscall de saída e finaliza o programa
+		li a7,10	
+		ecall	
 		
 PRINT:		li t0,0xFF0
 		add t0,t0,a3
