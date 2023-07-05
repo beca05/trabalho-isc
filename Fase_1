@@ -188,11 +188,18 @@ SETUP:
 		li a4,1
 		ecall
 		
-		la t3,POS_COR		# printa os corações na posição inicial
-		la a0,three_hearts
-		lh a1,0(t3)
-		lh a2,2(t3)
-		mv a3,s0
+		la t3,POS_COR		# printa os 3 corações
+		la a0,three_hearts	# carrega a imagem 
+		lh a1,0(t3)		# coluna
+		lh a2,2(t3)		# linha
+		li a3, 0		# frame 0
+		call PRINT
+		
+		la t3,POS_COR		# printa os 3 corações
+		la a0,three_hearts	# carrega imagem
+		lh a1,0(t3)		# coluna
+		lh a2,2(t3)		# linha
+		li a3, 1		# frame 1
 		call PRINT
 		
 		la t3,CHAR_POS		# printa o personagem na posição inicial
