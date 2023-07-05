@@ -37,6 +37,12 @@ PONTOS: .string "PONTOS:"
 VIDAS: .string "VIDAS:"
 NUM_CHAVES: .string "/2"
 
+# VIDAS
+.include "no_heart.data"
+.include "one_heart.data"
+.include "two_hearts.data"
+.include "three_hearts.data"
+
 # POSIÇÕES
 CHAR_POS: .half 16,16		# posição do personagem (x,y)
 OLD_CHAR_POS: .half 16,16
@@ -48,7 +54,7 @@ MOEDA2: .half 32,208
 MOEDA3: .half 48,128
 PORTA1: .half 16,112
 PORTA2: .half 128,96
-
+POS_COR: .half 252,200
 .text
 ABERTURA:
 # Printa a imagem de abertura
@@ -181,6 +187,13 @@ SETUP:
 		li a3,0x00b0
 		li a4,1
 		ecall
+		
+		la t3,POS_COR		# printa os corações na posição inicial
+		la a0,three_hearts
+		lh a1,0(t3)
+		lh a2,2(t3)
+		mv a3,s0
+		call PRINT
 		
 		la t3,CHAR_POS		# printa o personagem na posição inicial
 		la a0,personagem_s
