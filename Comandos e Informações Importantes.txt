@@ -1,0 +1,39 @@
+#########################
+#	  TECLAS	#
+#########################
+
+'q' - pular a abertura
+
+'a' - andar para esquerda
+'d' - andar para direita
+'s' - andar para baixo
+'w' - andar para cima
+'e' - atirar
+
+'p' - pular a fase
+
+#########################
+#	 MATRIZ		#
+#########################
+
+(0) - chão
+(1) - parede
+(2) - chave
+(3) - moeda
+(4) - saída
+
+#################################
+#	 REGISTRADORES		#
+#################################
+
+s0 - frames
+s1 - matriz
+s2,s3,s4, - movimentação na matriz
+s5 - pontuação/moedas
+s6 - chaves coletadas
+s7 -
+s8 -
+s9 - 
+s10 -
+s11 -
+
