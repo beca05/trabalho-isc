@@ -56,11 +56,11 @@ MOEDA2: .half 32,208
 MOEDA3: .half 48,128
 .text
 SETUP: 		
-# Carrega a matriz da fase 1 para o registrador s1
+	# Carrega a matriz da fase 1 para o registrador s1
 		la s1, matriz1		
 		addi s1,s1,8
 
-# Printa a imagem do mapa 1, alternando os frames
+	# Printa a imagem do mapa 1, alternando os frames
 		la a0,ideia_fase1	
 		li a1,0
 		li a2,0
@@ -70,7 +70,7 @@ SETUP:
 		call PRINT
 		li a3,1
 		call PRINT
-# Printa o título da fase, alternando os frames 		
+	# Printa o título da fase, alternando os frames 		
 		li a7,104        	
 		la a0,TITULO_FASE        
 		li a1,252
@@ -86,7 +86,7 @@ SETUP:
 		li a4,1
 		ecall
 		
-# Adiciona a string dos pontos da fase, alternando os frames 
+	# Adiciona a string dos pontos da fase, alternando os frames 
 		li a7,104        
 		la a0,PONTOS       
 		li a1,250
@@ -102,7 +102,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Adiciona a string de chaves da fase, alternando os frames 
+	# Adiciona a string de chaves da fase, alternando os frames 
 		li a7,104        
 		la a0,CHAVES       
 		li a1,250
@@ -132,7 +132,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Adiciona a string de vidas da fase, alternando os frames 
+	# Adiciona a string de vidas da fase, alternando os frames 
 		li a7,104        
 		la a0,VIDAS       
 		li a1,252
@@ -148,7 +148,7 @@ SETUP:
 		li a4,1
 		ecall
 		
-# Printa o personagem na posição inicial, alternado os frames		
+	# Printa o personagem na posição inicial, alternado os frames		
 		la t3,CHAR_POS		
 		la a0,personagem_s
 		lh a1,0(t3)
@@ -162,7 +162,7 @@ SETUP:
 		mv a3,s0
 		call PRINT
 		
-# Printa as chaves e as moedas nas posições e frames corretos para a coleta	
+	# Printa as chaves e as moedas nas posições e frames corretos para a coleta	
 		la t3, CHAVE1
 		la a0, chave
 		lh a1,0(t3)
@@ -201,14 +201,14 @@ GAME_LOOP:	call KEY
 		
 		
 KEY:		
-# Faz a chamada do teclado e guarda a tecla pressionada no t2
+	# Faz a chamada do teclado e guarda a tecla pressionada no t2
 		li t1,0xFF200000	
 		lw t0,0(t1)
 		andi t0,t0,0x0001
 		beq t0,zero,FIM
 		lw t2,4(t1)
 		
-# Compara as teclas para chamar a movimentação	
+	# Compara as teclas para chamar a movimentação	
 		li t0,'a'		
 		beq t2,t0,CHAR_ESQ
 		
@@ -335,8 +335,8 @@ CHAR_CIMA:	la t0, CHAR_POS
 		lb s3,0(s2)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
-		li t5,4
-		beq s3,t5,VERIFICACAO_SAIDA
+		li t5,4			# atribui o '4' que representa saída ao t5
+		beq s3,t5,VERIFICACAO_SAIDA	# compara se a nova posição do personagem é saída, se sim vai fazer a verificação da quantidade de chaves coletadas
 		
 		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
@@ -453,7 +453,7 @@ COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra
 		li a4,1			# frame 1
 		ecall
 		
-		# Efeito Sonoro da coleta de moedas
+	# Efeito Sonoro da coleta de moedas
 		li a0,88			# nota
 		li a1,370			# duração
 		li a2,8			# define o instrumento
@@ -516,7 +516,7 @@ VERIFICACAO_SAIDA:	li t5,2			# atribui o 2 que representa a quantidade de chave 
 			j GAME_LOOP
 
 SAIDA:		li s6, 0		# zerar o registrador de chaves para próxima fase
-		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t2,0(t1)		# vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
 		sh s4,2(t0)
 
@@ -531,7 +531,7 @@ SAIDA:		li s6, 0		# zerar o registrador de chaves para próxima fase
 		li a5,16		# altura do personagem
 		call PRINT
 		
-		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
+		la t0,OLD_CHAR_POS	# sobrepor o personagem com a fundo a partir da posição antiga
 		la a0,fundo
 		lh a1,0(t0)
 		lh a2,2(t0) 
@@ -541,7 +541,8 @@ SAIDA:		li s6, 0		# zerar o registrador de chaves para próxima fase
 		
 		li t0,0xFF200604
 		sw s0,0(t0)
-		
+
+	# Efeito sonoro para mudança de fase
 		li a0,60			# nota
 		li a1,1300			# duração
 		li a2,55			# define o instrumento
@@ -577,11 +578,11 @@ MOEDA3: .half 144,144
 
 .text
 SETUP: 		
-# Carrega a matriz da fase 1 para o registrador s1
+	# Carrega a matriz da fase 1 para o registrador s1
 		la s1, matriz2	
 		addi s1,s1,8
 
-# Printa a imagem do mapa, alternando os frames
+	# Printa a imagem do mapa, alternando os frames
 		la a0,ideia_fase2	
 		li a1,0
 		li a2,0
@@ -592,7 +593,7 @@ SETUP:
 		li a3,1
 		call PRINT
 		
-# Printa o título da fase, alternando os frames		
+	# Printa o título da fase, alternando os frames		
 		li a7,104        	
 		la a0,TITULO_FASE        
 		li a1,252
@@ -608,7 +609,7 @@ SETUP:
 		li a4,1
 		ecall
 		
-# Adiciona a string dos pontos da fase, alternando os frames
+	# Adiciona a string dos pontos da fase, alternando os frames
 		li a7,104        
 		la a0,PONTOS       
 		li a1,250
@@ -624,7 +625,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Adiciona a string de chaves da fase, alternando os frames
+	# Adiciona a string de chaves da fase, alternando os frames
 		li a7,104        
 		la a0,CHAVES       
 		li a1,250
@@ -654,7 +655,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Adiciona a string de vidas da fase, alternando os frames
+	# Adiciona a string de vidas da fase, alternando os frames
 		li a7,104        
 		la a0,VIDAS       
 		li a1,252
@@ -670,7 +671,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Printa o personagem na posição inicial, alternado os frames			
+	# Printa o personagem na posição inicial, alternado os frames			
 		la t3,CHAR_POS		
 		la a0,personagem_s
 		lh a1,0(t3)
@@ -684,7 +685,7 @@ SETUP:
 		mv a3,s0
 		call PRINT
 		
-# Printa as chaves e as moedas nas posições e frames corretos para a coleta		
+	# Printa as chaves e as moedas nas posições e frames corretos para a coleta		
 		la t3, CHAVE1
 		la a0, chave
 		lh a1,0(t3)
@@ -721,14 +722,14 @@ GAME_LOOP:	call KEY
 		j GAME_LOOP
 
 KEY:		
-# Faz a chamada do teclado e guarda a tecla pressionada no t2
+	# Faz a chamada do teclado e guarda a tecla pressionada no t2
 		li t1,0xFF200000	
 		lw t0,0(t1)
 		andi t0,t0,0x0001
 		beq t0,zero,FIM
 		lw t2,4(t1)
 		
-# Compara as teclas para chamar a movimentação	
+	# Compara as teclas para chamar a movimentação	
 		li t0,'a'		
 		beq t2,t0,CHAR_ESQ
 		
@@ -855,8 +856,8 @@ CHAR_CIMA:	la t0, CHAR_POS
 		lb s3,0(s2)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
-		li t5,4
-		beq s3,t5,VERIFICACAO_SAIDA
+		li t5,4			# atribui o '4' que representa saída ao t5
+		beq s3,t5,VERIFICACAO_SAIDA	# compara se a nova posição do personagem é saída, se sim vai fazer a verificação da quantidade de chaves coletadas
 		
 		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
@@ -972,7 +973,7 @@ COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra
 		li a4,1			# frame 1
 		ecall
 		
-		# Efeito Sonoro da coleta de moedas
+	# Efeito Sonoro da coleta de moedas
 		li a0,88			# nota
 		li a1,370			# duração
 		li a2,8			# define o instrumento
@@ -1050,7 +1051,7 @@ SAIDA:		li s6,0			# zerar o registrador de chaves para próxima fase
 		li a5,16		# altura do personagem
 		call PRINT
 		
-		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
+		la t0,OLD_CHAR_POS	# sobrepor o personagem com a fundo a partir da posição antiga
 		la a0,fundo
 		lh a1,0(t0)
 		lh a2,2(t0) 
@@ -1060,7 +1061,8 @@ SAIDA:		li s6,0			# zerar o registrador de chaves para próxima fase
 		
 		li t0,0xFF200604
 		sw s0,0(t0)
-		
+
+	# Efeito sonoro de mudança de fase
 		li a0,60			# nota
 		li a1,1300			# duração
 		li a2,55			# define o instrumento
@@ -1098,11 +1100,11 @@ MOEDA3: .half 160,96
 
 .text
 SETUP: 		
-# Carrega a matriz da fase 1 para o registrador s1
+	# Carrega a matriz da fase 1 para o registrador s1
 		la s1, matriz3	
 		addi s1,s1,8
 
-# Printa a imagem do mapa, alternando os frames
+	# Printa a imagem do mapa, alternando os frames
 		la a0,ideia_fase3	
 		li a1,0
 		li a2,0
@@ -1113,7 +1115,7 @@ SETUP:
 		li a3,1
 		call PRINT
 		
-# Printa o título da fase, alternando os frames 		
+	# Printa o título da fase, alternando os frames 		
 		li a7,104        	
 		la a0,TITULO_FASE        
 		li a1,252
@@ -1129,7 +1131,7 @@ SETUP:
 		li a4,1
 		ecall
 		
-# Adiciona a string dos pontos da fase, alternando os frames
+	# Adiciona a string dos pontos da fase, alternando os frames
 		li a7,104        
 		la a0,PONTOS       
 		li a1,250
@@ -1145,7 +1147,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Adiciona a string de chaves da fase, alternando os frames
+	# Adiciona a string de chaves da fase, alternando os frames
 		li a7,104        
 		la a0,CHAVES       
 		li a1,250
@@ -1175,7 +1177,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Adiciona a string de vidas da fase, alternando os frames
+	# Adiciona a string de vidas da fase, alternando os frames
 		li a7,104        
 		la a0,VIDAS       
 		li a1,252
@@ -1191,7 +1193,7 @@ SETUP:
 		li a4,1
 		ecall
 
-# Printa o personagem na posição inicial, alternado os frames			
+	# Printa o personagem na posição inicial, alternado os frames			
 		la t3,CHAR_POS	
 		la a0,personagem_s
 		lh a1,0(t3)
@@ -1205,7 +1207,7 @@ SETUP:
 		mv a3,s0
 		call PRINT
 		
-# Printa as chaves e as moedas nas posições e frames corretos para a coleta
+	# Printa as chaves e as moedas nas posições e frames corretos para a coleta
 		la t3, CHAVE1
 		la a0, chave
 		lh a1,0(t3)
@@ -1248,14 +1250,14 @@ GAME_LOOP:	call KEY
 		j GAME_LOOP
 
 KEY:		
-# Faz a chamada do teclado e guarda a tecla pressionada no t2
+	# Faz a chamada do teclado e guarda a tecla pressionada no t2
 		li t1,0xFF200000	
 		lw t0,0(t1)
 		andi t0,t0,0x0001
 		beq t0,zero,FIM
 		lw t2,4(t1)
 		
-# Compara as teclas para chamar a movimentação	
+	# Compara as teclas para chamar a movimentação	
 		li t0,'a'		
 		beq t2,t0,CHAR_ESQ
 		
@@ -1333,8 +1335,8 @@ CHAR_DIR:	la t0,CHAR_POS
 		lb s3,0(s2)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,FIM		# compara se a nova posição do personagem é parede ou chão, se for parede o programa retorna sem executar a movimentação
-		li t5,4
-		beq s3,t5,VERIFICACAO_SAIDA
+		li t5,4			# atribui o '4' que representa saída ao t5
+		beq s3,t5,VERIFICACAO_SAIDA	# compara se a nova posição do personagem é saída, se sim vai fazer a verificação da quantidade de chaves coletadas
 		
 		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
@@ -1499,7 +1501,7 @@ COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra
 		li a4,1			# frame 1
 		ecall
 		
-		# Efeito Sonoro da coleta de moedas
+	# Efeito Sonoro da coleta de moedas
 		li a0,88			# nota
 		li a1,370			# duração
 		li a2,8				# define o instrumento
@@ -1576,7 +1578,7 @@ SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do persona
 		li a5,16		# altura do personagem
 		call PRINT
 		
-		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
+		la t0,OLD_CHAR_POS	# sobrepor o personagem com a fundo a partir da posição antiga
 		la a0,fundo
 		lh a1,0(t0)
 		lh a2,2(t0) 
@@ -1586,7 +1588,7 @@ SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do persona
 		
 		li t0,0xFF200604
 		sw s0,0(t0)
-		
+	# Efeito sonoro de mudança de fase	
 		li a0,60			# nota
 		li a1,1300			# duração
 		li a2,55			# define o instrumento
