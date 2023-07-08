@@ -224,6 +224,9 @@ KEY:
 		
 		li t0,'s'
 		beq t2,t0,CHAR_BAIXO
+		
+		li t0, 'p'
+		beq t2,t0,END
 
 FIM:		ret
 
@@ -519,8 +522,7 @@ VERIFICACAO_SAIDA:	li t5,2			# atribui o 2 que representa a quantidade de chave 
 			beq s6,t5,SAIDA		# se o n° de chaves coletas for igual a quantidade de chaves na fase, a saída é liberada
 			j GAME_LOOP
 
-SAIDA:		li s6, 0		# zerar o registrador de chaves para próxima fase
-		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
 		sh s4,2(t0)
 
@@ -558,6 +560,9 @@ SAIDA:		li s6, 0		# zerar o registrador de chaves para próxima fase
 		li a3,127			# define o volume
 		li a7,31			# define a syscall
 		ecall	
+		
+END:		li s6, 0		# zerar o registrador de chaves para próxima fase
+
 .end_macro
 
 .macro fase2()
@@ -744,6 +749,9 @@ KEY:
 		
 		li t0,'s'
 		beq t2,t0,CHAR_BAIXO
+		
+		li t0, 'p'
+		beq t2,t0,END
 
 FIM:		ret
 
@@ -1038,8 +1046,7 @@ VERIFICACAO_SAIDA:	li t5,2		# atribui o 2 que representa a quantidade de chave n
 			beq s6,t5,SAIDA	# se o n° de chaves coletas for igual a quantidade de chaves na fase, a saída é liberada
 			j GAME_LOOP
 
-SAIDA:		li s6,0			# zerar o registrador de chaves para próxima fase
-		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
 		sh t3,2(t1)
 		sh s4,2(t0)
 
@@ -1077,6 +1084,8 @@ SAIDA:		li s6,0			# zerar o registrador de chaves para próxima fase
 		li a3,127			# define o volume
 		li a7,31			# define a syscall
 		ecall
+		
+END:		li s6,0			# zerar o registrador de chaves para próxima fase
 
 .end_macro
 
@@ -1271,6 +1280,9 @@ KEY:
 		
 		li t0,'s'
 		beq t2,t0,CHAR_BAIXO
+		
+		li t0, 'p'
+		beq t2,t0,END
 
 FIM:		ret
 
@@ -1603,6 +1615,9 @@ SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do persona
 		li a3,127			# define o volume
 		li a7,31			# define a syscall
 		ecall
+
+END:		li s6,0			# zerar o registrador de chaves para próxima fase
+
 .end_macro
 
 .macro fim()
