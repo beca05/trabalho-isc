@@ -1657,7 +1657,7 @@ FIM: 	li a7,10
 .text
 ABERTURA:
 # Printa a imagem de abertura
-		la a0,tema_jogo_imagem
+		la a0,tema_jogo_imagem.bmp2
 		li a1,0
 		li a2,0
 		li a3,0
@@ -1671,7 +1671,7 @@ ABERTURA:
 		li t0,0			# zera o contador de notas
 		li a2,24		# define o instrumento
 		li a3,127		# define o volume
-	
+		
 # Faz a verificação se alguma tecla está pressionada	
 VERIFICAÇÃO:    li t1,0xFF200000
 		lw t0,0(t1)
@@ -1681,8 +1681,16 @@ VERIFICAÇÃO:    li t1,0xFF200000
 	
 		li t0,'q'
 		beq t2,t0,GAME
+restart: 	la a4,TAMANHO		# define o endereço do número de notas
+		lw a5,0(a4)		# le o numero de notas
+		la a4,NOTAS		# define o endereço das notas
+		li t0,0			# zera o contador de notas
+		li a2,24		# define o instrumento
+		li a3,127		# define o volume
+		li a6, 0
+		j VERIFICAÇÃO
 	
-LOOP:		beq t0,a5,GAME		# contador chegou no final? então  vá para o game
+LOOP:		beq a6,a5,restart		# contador chegou no final? então volte para o inicio da música
 		lw a0,0(a4)		# le o valor da nota
 		lw a1,4(a4)		# le a duracao da nota
 		li a7,31		# define a chamada de syscall
@@ -1691,9 +1699,9 @@ LOOP:		beq t0,a5,GAME		# contador chegou no final? então  vá para o game
 		li a7,32		# define a chamada de syscall 
 		ecall			# realiza uma pausa de a0 ms
 		addi a4,a4,8		# incrementa para o endereço da próxima nota
-		addi t0,t0,1		# incrementa o contador de notas
+		addi a6,a6,1		# incrementa o contador de notas
 		j VERIFICAÇÃO		# volta ao loop
-				
+						
 GAME:		fase1()
 		fase2()
 		fase3()
