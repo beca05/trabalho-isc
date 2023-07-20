@@ -31,6 +31,12 @@ NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64
 .include "./script/Imagens/arquivos .data/cogumelo_a.data"
 .include "./script/Imagens/arquivos .data/cogumelo_d.data"
 
+# ATAQUES
+.include "./script/Imagens/arquivos .data/tiro_a.data"
+.include "./script/Imagens/arquivos .data/tiro_d.data"
+.include "./script/Imagens/arquivos .data/tiro_w.data"
+.include "./script/Imagens/arquivos .data/tiro_s.data"
+
 # ITENS
 .include "./script/Imagens/arquivos .data/chave.data"
 .include "./script/Imagens/arquivos .data/moeda.data"
@@ -225,6 +231,9 @@ KEY:
 		li t0,'s'
 		beq t2,t0,CHAR_BAIXO
 		
+		li t0,'e'
+		beq t2,t0,DIRECAO_ATAQUE
+		
 		li t0, 'p'
 		beq t2,t0,END
 
@@ -270,6 +279,8 @@ CHAR_ESQ:	la t0,CHAR_POS
 	
 		li t0,0xFF200604
 		sw s0,0(t0)
+		
+		li s7,1				# atribui '1' ao s7 para indicar a direção (esquerda) do personagem
 		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
@@ -319,6 +330,8 @@ CHAR_DIR:	la t0,CHAR_POS
 	
 		li t0,0xFF200604
 		sw s0,0(t0)
+		
+		li s7,2				# atribui '2' ao s7 para indicar a direção (direita) do personagem
 	
 		li t5,2			# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE	# se a nova posição do personagem for uma chave, ocorre a coleta
@@ -371,6 +384,8 @@ CHAR_CIMA:	la t0, CHAR_POS
 		li t0,0xFF200604
 		sw s0,0(t0)
 		
+		li s7,3				# atribui '3' ao s7 para indicar a direção (cima) do personagem
+		
 		li t5,2			# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE	# se a nova posição do personagem for uma chave, ocorre a coleta
 		li t5,3			# atribui o '3' que representa moeda ao t5
@@ -418,6 +433,8 @@ CHAR_BAIXO:	la t0, CHAR_POS
 		
 		li t0,0xFF200604
 		sw s0,0(t0)
+		
+		li s7,4			# atribui '4' ao s7 para indicar a direção (baixo) do personagem
 	
 		li t5,2			# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE	# se a nova posição do personagem for uma chave, ocorre a coleta
@@ -425,18 +442,376 @@ CHAR_BAIXO:	la t0, CHAR_POS
 		beq s3,t5,COLETA_MOEDA	# se a nova posição do personagem for uma moeda, ocorre a coleta
 		
 		j GAME_LOOP
+		
+DIRECAO_ATAQUE:
+		li t6,1			# atribui o '1' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_ESQ1	# se s7 for igual, o ataque será direcionado para esquerda, mas antes é preciso verificar se é parede
+		
+		li t6,2			# atribui o '2' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_DIR1	# se s7 for igual, o ataque será direcionado para direita, mas antes é preciso verificar se é parede
+		
+		li t6,3			# atribui o '3' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_CIMA1	# se s7 for igual, o ataque será direcionado para cima, mas antes é preciso verificar se é parede
+		
+		li t6,4			# atribui o '4' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_BAIXO1	# se s7 for igual, o ataque será direcionado para baixo, mas antes é preciso verificar se é parede
+		
+		j GAME_LOOP
+		
+VER_ATAQUE_ESQ1:
+		la t0,CHAR_POS						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call VER_ATAQUE_ESQ2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels	
+		
+VER_ATAQUE_ESQ2:
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_ESQ		# se passar pelas 2 verificação ocorre o tiro
+		
+VER_ATAQUE_DIR1:la t0,CHAR_POS							
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,16		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call VER_ATAQUE_DIR2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+		
+VER_ATAQUE_DIR2:
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,32		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_DIR		# se passar pelas 2 verificação ocorre o tiro
+		
+VER_ATAQUE_CIMA1:la t0, CHAR_POS
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)					
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		li t5,4			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é saída
+		call VER_ATAQUE_CIMA2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+
+VER_ATAQUE_CIMA2:
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		li t5,4			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é saída	
+		call ATAQUE_CIMA	# se passar pelas 2 verificação ocorre o tiro
+			
+VER_ATAQUE_BAIXO1:la t0, CHAR_POS
+		la t1, OLD_CHAR_POS
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)		
+		lh t3, 2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,16		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		call VER_ATAQUE_BAIXO2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+		
+VER_ATAQUE_BAIXO2:
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,32		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_BAIXO	# se passar pelas 2 verificação ocorre o tiro
+		
+ATAQUE_ESQ:	la t0, CHAR_POS
+		la a0,tiro_a
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 16px atrás
+		lh a2, 2(t0)
+		addi a1,a1,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_a
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 32px atrás
+		lh a2, 2(t0)
+		addi a1,a1,-32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a1,a1,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)		
+		lh a2, 2(t0)
+		addi a1,a1,-32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_DIR:	la t0, CHAR_POS
+		la a0,tiro_d
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px a frente
+		lh a2, 2(t0)
+		addi a1,a1,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_d
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px a frente
+		lh a2, 2(t0)
+		addi a1,a1,32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a1,a1,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			
+		lh a2, 2(t0)
+		addi a1,a1,32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_CIMA:	la t0, CHAR_POS
+		la a0,tiro_w
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px acima
+		lh a2, 2(t0)
+		addi a2,a2,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_w
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px acima
+		lh a2, 2(t0)
+		addi a2,a2,-32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a2,a2,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			
+		lh a2, 2(t0)
+		addi a2,a2,-32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_BAIXO:	la t0, CHAR_POS
+		la a0,tiro_s
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px abaixo
+		lh a2, 2(t0)
+		addi a2,a2,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_s
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px abaixo
+		lh a2, 2(t0)
+		addi a2,a2,32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a2,a2,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px a frente
+		lh a2, 2(t0)
+		addi a2,a2,32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
 
 COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra nessa label
 		li a7,101		# chamada para printar inteiro 	        	 
 		mv a0, s6		# coloca as chaves no registrador a0      
-		li a1,255		# coluna
+		li a1,250		# coluna
 		li a2,140 		# linha
 		li a3,0x00a0		# cor
 		li a4,0			# frame 0
 		ecall
 		li a7,101        	# '' 
 		mv a0, s6    		# '' 
-		li a1,255		# '' 
+		li a1,250		# '' 
 		li a2,140		# ''  
 		li a3,0x00a0		# '' 
 		li a4,1			# frame 1
@@ -447,14 +822,14 @@ COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra ness
 COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra nessa label
 		li a7,101       	# chamada para printar inteiro 	 
 		mv a0, s5 		# coloca a pontuação no registrador a0
-		li a1,260		# coluna
+		li a1,250		# coluna
 		li a2,80		# linha
 		li a3,0x0090		# cor
 		li a4,0			# frame 0
 		ecall
 		li a7,101        	# ''
 		mv a0, s5		# ''   
-		li a1,260		# ''
+		li a1,250		# ''
 		li a2,80		# ''
 		li a3,0x0090		# ''
 		li a4,1			# frame 1
@@ -750,6 +1125,9 @@ KEY:
 		li t0,'s'
 		beq t2,t0,CHAR_BAIXO
 		
+		li t0,'e'
+		beq t2,t0,DIRECAO_ATAQUE
+		
 		li t0, 'p'
 		beq t2,t0,END
 
@@ -795,6 +1173,8 @@ CHAR_ESQ:	la t0,CHAR_POS
 	
 		li t0,0xFF200604
 		sw s0,0(t0)
+		
+		li s7,1				# atribui '1' ao s7 para indicar a direção (esquerda) do personagem
 		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
@@ -844,6 +1224,8 @@ CHAR_DIR:	la t0,CHAR_POS
 	
 		li t0,0xFF200604
 		sw s0,0(t0)
+		
+		li s7,2				# atribui '2' ao s7 para indicar a direção (direita) do personagem
 		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
@@ -896,6 +1278,8 @@ CHAR_CIMA:	la t0, CHAR_POS
 		li t0,0xFF200604
 		sw s0,0(t0)
 		
+		li s7,3			# atribui '3' ao s7 para indicar a direção (cima) do personagem
+		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
 		li t5,3				# atribui o '3' que representa moeda ao t5
@@ -944,6 +1328,8 @@ CHAR_BAIXO:	la t0, CHAR_POS
 		li t0,0xFF200604
 		sw s0,0(t0)
 		
+		li s7,4			# atribui '4' ao s7 para indicar a direção (baixo) do personagem
+		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
 		li t5,3				# atribui o '3' que representa moeda ao t5
@@ -951,17 +1337,374 @@ CHAR_BAIXO:	la t0, CHAR_POS
 	
 		j GAME_LOOP
 		
+DIRECAO_ATAQUE:	li t6,1			# atribui o '1' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_ESQ1	# se s7 for igual, o ataque será direcionado para esquerda, mas antes é preciso verificar se é parede
+		
+		li t6,2			# atribui o '2' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_DIR1	# se s7 for igual, o ataque será direcionado para direita, mas antes é preciso verificar se é parede
+		
+		li t6,3			# atribui o '3' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_CIMA1	# se s7 for igual, o ataque será direcionado para cima, mas antes é preciso verificar se é parede
+		
+		li t6,4			# atribui o '4' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_BAIXO1	# se s7 for igual, o ataque será direcionado para baixo, mas antes é preciso verificar se é parede
+		
+		j GAME_LOOP
+		
+VER_ATAQUE_ESQ1:
+		la t0,CHAR_POS						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call VER_ATAQUE_ESQ2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels	
+		
+VER_ATAQUE_ESQ2:
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_ESQ		# se passar pelas 2 verificação ocorre o tiro
+		
+VER_ATAQUE_DIR1:la t0,CHAR_POS							
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,16		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call VER_ATAQUE_DIR2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+		
+VER_ATAQUE_DIR2:
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,32		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_DIR		# se passar pelas 2 verificação ocorre o tiro
+		
+VER_ATAQUE_CIMA1:la t0, CHAR_POS
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)					
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		li t5,4			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é saída
+		call VER_ATAQUE_CIMA2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+
+VER_ATAQUE_CIMA2:
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		li t5,4			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é saída	
+		call ATAQUE_CIMA	# se passar pelas 2 verificação ocorre o tiro
+			
+VER_ATAQUE_BAIXO1:la t0, CHAR_POS
+		la t1, OLD_CHAR_POS
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)		
+		lh t3, 2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,16		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		call VER_ATAQUE_BAIXO2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+		
+VER_ATAQUE_BAIXO2:
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,32		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_BAIXO	# se passar pelas 2 verificação ocorre o tiro
+		
+ATAQUE_ESQ:	la t0, CHAR_POS
+		la a0,tiro_a
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 16px atrás
+		lh a2, 2(t0)
+		addi a1,a1,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_a
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 32px atrás
+		lh a2, 2(t0)
+		addi a1,a1,-32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a1,a1,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)		
+		lh a2, 2(t0)
+		addi a1,a1,-32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_DIR:	la t0, CHAR_POS
+		la a0,tiro_d
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px a frente
+		lh a2, 2(t0)
+		addi a1,a1,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_d
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px a frente
+		lh a2, 2(t0)
+		addi a1,a1,32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a1,a1,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			
+		lh a2, 2(t0)
+		addi a1,a1,32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_CIMA:	la t0, CHAR_POS
+		la a0,tiro_w
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px acima
+		lh a2, 2(t0)
+		addi a2,a2,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_w
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px acima
+		lh a2, 2(t0)
+		addi a2,a2,-32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a2,a2,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			
+		lh a2, 2(t0)
+		addi a2,a2,-32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_BAIXO:	la t0, CHAR_POS
+		la a0,tiro_s
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px abaixo
+		lh a2, 2(t0)
+		addi a2,a2,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_s
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px abaixo
+		lh a2, 2(t0)
+		addi a2,a2,32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a2,a2,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px a frente
+		lh a2, 2(t0)
+		addi a2,a2,32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
 COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra nessa label
 		li a7,101 		# chamada para printar inteiro        	 
 		mv a0, s6		# coloca as chaves no registrador a0      
-		li a1,255		# coluna
+		li a1,250		# coluna
 		li a2,140 		# linha
 		li a3,0x00a0		# cor
 		li a4,0			# frame 0
 		ecall
 		li a7,101		# ''        	 
 		mv a0, s6 		# ''   
-		li a1,255		# ''
+		li a1,250		# ''
 		li a2,140 		# ''
 		li a3,0x00a0		# ''
 		li a4,1			# frame 1
@@ -971,14 +1714,14 @@ COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra ness
 COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra nessa label
 		li a7,101       	# chamada para printar inteiro 	 
 		mv a0, s5 		# coloca a pontuação no registrador a0
-		li a1,260		# coluna
+		li a1,250		# coluna
 		li a2,80		# linha
 		li a3,0x0090		# cor
 		li a4,0			# frame 0
 		ecall
 		li a7,101        	# '' 
 		mv a0, s5   		# '' 
-		li a1,260		# '' 
+		li a1,250		# '' 
 		li a2,80		# '' 
 		li a3,0x0090		# '' 
 		li a4,1			# frame 1
@@ -1281,6 +2024,9 @@ KEY:
 		li t0,'s'
 		beq t2,t0,CHAR_BAIXO
 		
+		li t0,'e'
+		beq t2,t0,DIRECAO_ATAQUE
+		
 		li t0, 'p'
 		beq t2,t0,END
 
@@ -1326,6 +2072,8 @@ CHAR_ESQ:	la t0,CHAR_POS
 	
 		li t0,0xFF200604
 		sw s0,0(t0)
+		
+		li s7,1				# atribui '1' ao s7 para indicar a direção (esquerda) do personagem
 		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
@@ -1378,6 +2126,8 @@ CHAR_DIR:	la t0,CHAR_POS
 		li t0,0xFF200604
 		sw s0,0(t0)
 		
+		li s7,2				# atribui '2' ao s7 para indicar a direção (direita) do personagem
+		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
 		li t5,3				# atribui o '3' que representa moeda ao t5
@@ -1427,6 +2177,8 @@ CHAR_CIMA:	la t0, CHAR_POS
 		li t0,0xFF200604
 		sw s0,0(t0)
 		
+		li s7,3			# atribui '3' ao s7 para indicar a direção (cima) do personagem
+		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
 		li t5,3				# atribui o '3' que representa moeda ao t5
@@ -1475,24 +2227,383 @@ CHAR_BAIXO:	la t0, CHAR_POS
 		li t0,0xFF200604
 		sw s0,0(t0)
 		
+		li s7,4			# atribui '4' ao s7 para indicar a direção (baixo) do personagem
+		
 		li t5,2				# atribui o '2' que representa chave ao t5
 		beq s3,t5,COLETA_CHAVE		# se a nova posição do personagem for uma chave, ocorre a coleta
 		li t5,3				# atribui o '3' que representa moeda ao t5
 		beq s3,t5,COLETA_MOEDA		# se a nova posição do personagem for uma moeda, ocorre a coleta
 	
 		j GAME_LOOP
+
+DIRECAO_ATAQUE:	li t6,1			# atribui o '1' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_ESQ1	# se s7 for igual, o ataque será direcionado para esquerda, mas antes é preciso verificar se é parede
+		
+		li t6,2			# atribui o '2' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_DIR1	# se s7 for igual, o ataque será direcionado para direita, mas antes é preciso verificar se é parede
+		
+		li t6,3			# atribui o '3' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_CIMA1	# se s7 for igual, o ataque será direcionado para cima, mas antes é preciso verificar se é parede
+		
+		li t6,4			# atribui o '4' que representa direção ao t6
+		beq t6,s7,VER_ATAQUE_BAIXO1	# se s7 for igual, o ataque será direcionado para baixo, mas antes é preciso verificar se é parede
+		
+		j GAME_LOOP
+		
+VER_ATAQUE_ESQ1:
+		la t0,CHAR_POS						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call VER_ATAQUE_ESQ2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels	
+		
+VER_ATAQUE_ESQ2:
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_ESQ		# se passar pelas 2 verificação ocorre o tiro
+		
+VER_ATAQUE_DIR1:la t0,CHAR_POS							
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,16		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call VER_ATAQUE_DIR2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+		
+VER_ATAQUE_DIR2:
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,32		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_DIR		# se passar pelas 2 verificação ocorre o tiro
+		
+VER_ATAQUE_CIMA1:la t0, CHAR_POS
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)					
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		li t5,4			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é saída
+		call VER_ATAQUE_CIMA2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+
+VER_ATAQUE_CIMA2:
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		li t5,4			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é saída	
+		call ATAQUE_CIMA	# se passar pelas 2 verificação ocorre o tiro
+			
+VER_ATAQUE_BAIXO1:la t0, CHAR_POS
+		la t1, OLD_CHAR_POS
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)		
+		lh t3, 2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,16		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
+		call VER_ATAQUE_BAIXO2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
+		
+VER_ATAQUE_BAIXO2:
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,32		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+		li t5,1			# atribui o '1' que representa parede ao t5
+		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
+		call ATAQUE_BAIXO	# se passar pelas 2 verificação ocorre o tiro
+		
+ATAQUE_ESQ:	la t0, CHAR_POS
+		la a0,tiro_a
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 16px atrás
+		lh a2, 2(t0)
+		addi a1,a1,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_a
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 32px atrás
+		lh a2, 2(t0)
+		addi a1,a1,-32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a1,a1,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)		
+		lh a2, 2(t0)
+		addi a1,a1,-32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_DIR:	la t0, CHAR_POS
+		la a0,tiro_d
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px a frente
+		lh a2, 2(t0)
+		addi a1,a1,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_d
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px a frente
+		lh a2, 2(t0)
+		addi a1,a1,32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a1,a1,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			
+		lh a2, 2(t0)
+		addi a1,a1,32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_CIMA:	la t0, CHAR_POS
+		la a0,tiro_w
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px acima
+		lh a2, 2(t0)
+		addi a2,a2,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_w
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px acima
+		lh a2, 2(t0)
+		addi a2,a2,-32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a2,a2,-16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			
+		lh a2, 2(t0)
+		addi a2,a2,-32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
+		
+ATAQUE_BAIXO:	la t0, CHAR_POS
+		la a0,tiro_s
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px abaixo
+		lh a2, 2(t0)
+		addi a2,a2,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,tiro_s
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 32px abaixo
+		lh a2, 2(t0)
+		addi a2,a2,32
+		mv a3,s0
+		call PRINT
+		
+		# som de tiro
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Pausa para apagar o rastro do tiro
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		
+		# Procedimentos para apagar o rastro do tiro
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)
+		lh a2, 2(t0)
+		addi a2,a2,16
+		mv a3,s0
+		call PRINT
+		la t0, CHAR_POS
+		la a0,fundo
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o raio 16px a frente
+		lh a2, 2(t0)
+		addi a2,a2,32
+		mv a3,s0
+		call PRINT
+		
+		j GAME_LOOP
 		
 COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entrar nessa label
 		li a7,101		# chamada para printar inteiro 
 		mv a0, s6		# coloca a pontuação no registrador a0
-		li a1,255		# coluna
+		li a1,250		# coluna
 		li a2,140 		# linha
 		li a3,0x00a0		# cor
 		li a4,0			# frame 0
 		ecall
 		li a7,101		# ''         	 
 		mv a0, s6		# ''     
-		li a1,255		# '' 
+		li a1,250		# '' 
 		li a2,140		# ''  
 		li a3,0x00a0		# '' 
 		li a4,1			# frame 1
@@ -1502,14 +2613,14 @@ COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entrar nes
 COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entrar nessa label
 		li a7,101       	# chamada para printar inteiro 	 
 		mv a0, s5 		# coloca a pontuação no registrador a0
-		li a1,260		# coluna
+		li a1,250		# coluna
 		li a2,80		# linha
 		li a3,0x0090		# cor
 		li a4,0			# frame 0
 		ecall
 		li a7,101		# ''        	 
 		mv a0, s5		# ''   
-		li a1,260		# ''
+		li a1,250		# ''
 		li a2,80		# ''
 		li a3,0x0090		# ''
 		li a4,1			# frame 1
@@ -1657,7 +2768,7 @@ FIM: 	li a7,10
 .text
 ABERTURA:
 # Printa a imagem de abertura
-		la a0,tema_jogo_imagem.bmp2
+		la a0,tema_jogo_imagem
 		li a1,0
 		li a2,0
 		li a3,0
@@ -1671,7 +2782,7 @@ ABERTURA:
 		li t0,0			# zera o contador de notas
 		li a2,24		# define o instrumento
 		li a3,127		# define o volume
-		
+	
 # Faz a verificação se alguma tecla está pressionada	
 VERIFICAÇÃO:    li t1,0xFF200000
 		lw t0,0(t1)
@@ -1681,16 +2792,8 @@ VERIFICAÇÃO:    li t1,0xFF200000
 	
 		li t0,'q'
 		beq t2,t0,GAME
-restart: 	la a4,TAMANHO		# define o endereço do número de notas
-		lw a5,0(a4)		# le o numero de notas
-		la a4,NOTAS		# define o endereço das notas
-		li t0,0			# zera o contador de notas
-		li a2,24		# define o instrumento
-		li a3,127		# define o volume
-		li a6, 0
-		j VERIFICAÇÃO
 	
-LOOP:		beq a6,a5,restart		# contador chegou no final? então volte para o inicio da música
+LOOP:		beq t0,a5,GAME		# contador chegou no final? então  vá para o game
 		lw a0,0(a4)		# le o valor da nota
 		lw a1,4(a4)		# le a duracao da nota
 		li a7,31		# define a chamada de syscall
@@ -1699,9 +2802,9 @@ LOOP:		beq a6,a5,restart		# contador chegou no final? então volte para o inicio
 		li a7,32		# define a chamada de syscall 
 		ecall			# realiza uma pausa de a0 ms
 		addi a4,a4,8		# incrementa para o endereço da próxima nota
-		addi a6,a6,1		# incrementa o contador de notas
+		addi t0,t0,1		# incrementa o contador de notas
 		j VERIFICAÇÃO		# volta ao loop
-						
+				
 GAME:		fase1()
 		fase2()
 		fase3()
