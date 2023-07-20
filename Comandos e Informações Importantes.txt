@@ -31,7 +31,7 @@ s1 - matriz
 s2,s3,s4, - movimentação na matriz
 s5 - pontuação/moedas
 s6 - chaves coletadas
-s7 -
+s7 - direção do personagem
 s8 -
 s9 - 
 s10 -
