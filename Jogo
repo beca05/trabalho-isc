@@ -1061,6 +1061,13 @@ SETUP:
 		li a3,0x00a0
 		li a4,1
 		ecall
+		# efeito sonoro coleta de chaves
+		li a0,87			# nota
+		li a1,350			# duração
+		li a2,112			# define o instrumento
+		li a3,127			# define o volume
+		li a7,33			# define a syscall
+		ecall
 
 # Adiciona a string de vidas da fase, alternando os frames
 		li a7,104        
@@ -1758,6 +1765,13 @@ COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra ness
 		li a4,1			# frame 1
 		ecall
 		j GAME_LOOP	
+			# efeito sonoro coleta de chaves
+		li a0,87			# nota
+		li a1,350			# duração
+		li a2,112			# define o instrumento
+		li a3,127			# define o volume
+		li a7,33			# define a syscall
+		ecall
 		
 COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra nessa label
 		li a7,101       	# chamada para printar inteiro 	 
@@ -2680,6 +2694,13 @@ COLETA_CHAVE:	addi s6, s6, 1		# incrementa-se as chaves, toda vez que entrar nes
 		li a4,1			# frame 1
 		ecall
 		j GAME_LOOP	
+				# efeito sonoro coleta de chaves
+		li a0,87			# nota
+		li a1,350			# duração
+		li a2,112			# define o instrumento
+		li a3,127			# define o volume
+		li a7,33			# define a syscall
+		ecall
 		
 COLETA_MOEDA:	addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entrar nessa label
 		li a7,101       	# chamada para printar inteiro 	 
