@@ -955,6 +955,44 @@ SETUP:
 		lh a2,2(t3)
 		mv a3,s0
 		call PRINT
+
+# Printa o inimigo, alternando os frames
+		la t3,COG_POS1		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS1		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
+		call PRINT
+		la t3,COG_POS2		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS2		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
+		call PRINT
+                la t3,COG_POS3	
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS3	
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
+		call PRINT
 		
 # Printa as chaves e as moedas nas posições e frames corretos para a coleta		
 		la t3, CHAVE1
@@ -1572,6 +1610,56 @@ SETUP:
 		lh a1,0(t3)
 		lh a2,2(t3)
 		mv a3,s0
+		call PRINT
+
+# Printa o inimigo, alternando os frames
+		la t3,COG_POS1		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS1		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
+		call PRINT
+		la t3,COG_POS2		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS2		
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
+		call PRINT
+                la t3,COG_POS3	
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS3	
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
+		call PRINT
+                la t3,COG_POS4	
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,0
+		call PRINT
+		la t3,COG_POS4	
+		la a0,cogumelo_s
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,1
 		call PRINT
 		
 # Printa as chaves e as moedas nas posições e frames corretos para a coleta
