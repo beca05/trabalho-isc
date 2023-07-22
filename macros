@@ -1,0 +1,300 @@
+	
+.macro coleta_chave()
+.text
+		addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra nessa label
+		li a7,101		# chamada para printar inteiro 	        	 
+		mv a0, s6		# coloca as chaves no registrador a0      
+		li a1,255		# coluna
+		li a2,140 		# linha
+		li a3,0x00a0		# cor
+		li a4,0			# frame 0
+		ecall
+		li a7,101        	# '' 
+		mv a0, s6    		# '' 
+		li a1,255		# '' 
+		li a2,140		# ''  
+		li a3,0x00a0		# '' 
+		li a4,1			# frame 1
+		ecall
+		li a0,87			# nota
+		li a1,350			# duração
+		li a2,112			# define o instrumento
+		li a3,127			# define o volume
+		li a7,33			# define a syscall
+		ecall
+.end_macro
+.macro coleta_moeda()
+.text
+		addi s5, s5, 100	# incrementa-se a pontuação, toda vez que entra nessa label
+		li a7,101       	# chamada para printar inteiro 	 
+		mv a0, s5 		# coloca a pontuação no registrador a0
+		li a1,260		# coluna
+		li a2,80		# linha
+		li a3,0x0090		# cor
+		li a4,0			# frame 0
+		ecall
+		li a7,101        	# ''
+		mv a0, s5		# ''   
+		li a1,260		# ''
+		li a2,80		# ''
+		li a3,0x0090		# ''
+		li a4,1			# frame 1
+		ecall
+		
+		# Efeito Sonoro da coleta de moedas
+		li a0,88			# nota
+		li a1,370			# duração
+		li a2,8			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,370			# duração
+		li a2,8				# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,88			# nota
+		li a1,370			# duração
+		li a2,8			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+.end_macro
+.data
+PONTOS: .string "PONTOS:"
+VIDAS: .string "VIDAS:"
+CHAVES: .string "CHAVES:"
+POS_COR: .half 252,200
+.macro setup_menu(%matriz,%ideiafase,%titulo_fase,%num_chaves)
+.text
+# Carrega a matriz da fase 1 para o registrador s1
+		la s1, %matriz		
+		addi s1,s1,8
+
+# Printa a imagem do mapa 1, alternando os frames
+		la a0,%ideiafase	
+		li a1,0
+		li a2,0
+		li a3,0
+		li a4,320
+		li a4,240
+		call PRINT
+		li a3,1
+		call PRINT
+# Printa o título da fase, alternando os frames 		
+		li a7,104        	
+		la a0,%titulo_fase      
+		li a1,252
+		li a2,9 
+		li a3,0x00FF
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,%titulo_fase       
+		li a1,252
+		li a2,9 
+		li a3,0x00FF
+		li a4,1
+		ecall
+		
+# Adiciona a string dos pontos da fase, alternando os frames 
+		li a7,104        
+		la a0,PONTOS       
+		li a1,250
+		li a2,50 
+		li a3,0x0090
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,PONTOS      
+		li a1,250
+		li a2,50 
+		li a3,0x0090
+		li a4,1
+		ecall
+
+# Adiciona a string de chaves da fase, alternando os frames 
+		li a7,104        
+		la a0,CHAVES     
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,CHAVES       
+		li a1,250
+		li a2,110 
+		li a3,0x00a0
+		li a4,1
+		ecall
+		li a7,104        
+		la a0,%num_chaves       
+		li a1,265
+		li a2,140
+		li a3,0x00a0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,%num_chaves        
+		li a1,265
+		li a2,140
+		li a3,0x00a0
+		li a4,1
+		ecall
+
+# Adiciona a string de vidas da fase, alternando os frames 
+		li a7,104        
+		la a0,VIDAS      
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
+		li a4,0
+		ecall
+		li a7,104        
+		la a0,VIDAS        
+		li a1,252
+		li a2,170 
+		li a3,0x00b0
+		li a4,1
+		ecall
+		
+		la t3,POS_COR		# printa os corações na posição inicial
+		la a0,three_hearts
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3, 0
+		call PRINT
+		
+		la t3,POS_COR		# printa os corações na posição inicial
+		la a0,three_hearts
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3, 1
+		call PRINT
+.end_macro
+.macro printando_imagem(%posição,%imagem,%frame)
+.text
+		la t3,%posição
+		la a0,%imagem
+		lh a1,0(t3)
+		lh a2,2(t3)
+		li a3,%frame
+		call PRINT
+.end_macro
+.macro ver_ataque_neg(%pos_per,%imediato,%registrador_des,%registrador_fator,%regis)		# serve para baixo e para direita
+.text		la t0,%pos_per						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-%imediato		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul %registrador_des,%registrador_fator,t5
+		add s2,s1,%registrador_des		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,%regis		
+		lb s3,0(s2)
+
+.end_macro
+.macro ver_ataque(%pos_per,%imediato,%registrador_des,%registrador_fator,%regis)		# serve para baixo e para direita
+.text		la t0,%pos_per						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,%imediato		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul %registrador_des,%registrador_fator,t5
+		add s2,s1,%registrador_des		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,%regis		
+		lb s3,0(s2)
+.end_macro
+.macro ataque_neg(%posiper,%novoprint,%imediato,%registrador)
+.text
+		la t0, %posiper
+		la a0,%novoprint
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 16px atrás
+		lh a2, 2(t0)
+		addi %registrador,%registrador,-%imediato
+		mv a3,s0
+.end_macro
+.macro ataque(%posiper,%novoprint,%imediato,%registrador) # usamos tanto para a execução do tiro quanto para printar o fundo depois
+.text
+		la t0, %posiper
+		la a0,%novoprint
+		lh a1, 0(t0)			# Recebe as posicoes do personagem nos dois frames para imprimir o tiro 16px atrás
+		lh a2, 2(t0)
+		addi %registrador,%registrador,%imediato
+		mv a3,s0
+.end_macro
+.macro tiro()
+.text
+		li a0,50			# nota
+		li a1,1000			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,85			# nota
+		li a1,300			# duração
+		li a2,127			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+.end_macro
+.macro pausa_tiro()
+.text
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,0				# nota
+		li a1,2000000000		# duração
+		li a2,0				# define o instrumento
+		li a3,0				# define o volume
+		li a7,31			# define a syscall
+		ecall
+.end_macro
+.macro saida(%pos_per,%personagem,%old_pos_per)
+.text 		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
+		sh t3,2(t1)
+		sh s4,2(t0)
+
+		xori s0,s0,1 		# alterna os frames
+								
+		la t0,%pos_per		# carrega a sprite e a posição para printar	
+		la a0,%personagem
+		lh a1,0(t0)
+		lh a2,2(t0) 
+		mv a3,s0
+		li a4,16		# largura do personagem
+		li a5,16		# altura do personagem
+		call PRINT
+		
+		la t0,%old_pos_per	#t0 guarda a posicao antiga do personagem
+		la a0,fundo
+		lh a1,0(t0)
+		lh a2,2(t0) 
+		mv a3,s0
+		xori a3,a3,1
+		call PRINT
+		
+		li t0,0xFF200604
+		sw s0,0(t0)
+		
+		li a0,60			# nota
+		li a1,1300			# duração
+		li a2,55			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall
+		li a0,62			# nota
+		li a1,1250			# duração
+		li a2,55			# define o instrumento
+		li a3,127			# define o volume
+		li a7,31			# define a syscall
+		ecall	
+.end_macro
