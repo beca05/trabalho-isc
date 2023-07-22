@@ -511,44 +511,7 @@ VERIFICACAO_SAIDA:	li t5,2			# atribui o 2 que representa a quantidade de chave 
 			beq s6,t5,SAIDA		# se o n° de chaves coletas for igual a quantidade de chaves na fase, a saída é liberada
 			j GAME_LOOP
 
-SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
-		sh t3,2(t1)
-		sh s4,2(t0)
-
-		xori s0,s0,1 		# alterna os frames
-								
-		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
-		la a0,personagem_w
-		lh a1,0(t0)
-		lh a2,2(t0) 
-		mv a3,s0
-		li a4,16		# largura do personagem
-		li a5,16		# altura do personagem
-		call PRINT
-		
-		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
-		la a0,fundo
-		lh a1,0(t0)
-		lh a2,2(t0) 
-		mv a3,s0
-		xori a3,a3,1
-		call PRINT
-		
-		li t0,0xFF200604
-		sw s0,0(t0)
-		
-		li a0,60			# nota
-		li a1,1300			# duração
-		li a2,55			# define o instrumento
-		li a3,127			# define o volume
-		li a7,31			# define a syscall
-		ecall
-		li a0,62			# nota
-		li a1,1250			# duração
-		li a2,55			# define o instrumento
-		li a3,127			# define o volume
-		li a7,31			# define a syscall
-		ecall	
+SAIDA:		saida (CHAR_POS,personagem_w,OLD_CHAR_POS)
 		
 END:		li s5, 0 		# zerar o registrador de moedas para a próxima fase
 		li s6, 0		# zerar o registrador de chaves para a próxima fase
@@ -1018,44 +981,7 @@ VERIFICACAO_SAIDA:	li t5,2		# atribui o 2 que representa a quantidade de chave n
 			beq s6,t5,SAIDA	# se o n° de chaves coletas for igual a quantidade de chaves na fase, a saída é liberada
 			j GAME_LOOP
 
-SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
-		sh t3,2(t1)
-		sh s4,2(t0)
-
-		xori s0,s0,1 		# alterna os frames
-								
-		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
-		la a0,personagem_w
-		lh a1,0(t0)
-		lh a2,2(t0) 
-		mv a3,s0
-		li a4,16		# largura do personagem
-		li a5,16		# altura do personagem
-		call PRINT
-		
-		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
-		la a0,fundo
-		lh a1,0(t0)
-		lh a2,2(t0) 
-		mv a3,s0
-		xori a3,a3,1
-		call PRINT
-		
-		li t0,0xFF200604
-		sw s0,0(t0)
-		
-		li a0,60			# nota
-		li a1,1300			# duração
-		li a2,55			# define o instrumento
-		li a3,127			# define o volume
-		li a7,31			# define a syscall
-		ecall
-		li a0,62			# nota
-		li a1,1250			# duração
-		li a2,55			# define o instrumento
-		li a3,127			# define o volume
-		li a7,31			# define a syscall
-		ecall
+SAIDA:		saida (CHAR_POS,personagem_w,OLD_CHAR_POS)
 		
 END:		li s6,0			# zerar o registrador de chaves para próxima fase
 
@@ -1525,44 +1451,7 @@ VERIFICACAO_SAIDA:	li t5,3		# atribui o 2 que representa a quantidade de chave n
 			beq s6,t5,SAIDA	# se o n° de chaves coletas for igual a quantidade de chaves na fase, a saída é liberada
 			j GAME_LOOP
 
-SAIDA:		sh t2,0(t1)		# se for chão, vai atualizar a posição antiga do personagem
-		sh t3,2(t1)
-		sh s4,2(t0)
-
-		xori s0,s0,1 		# alterna os frames
-								
-		la t0,CHAR_POS		# carrega a sprite e a posição para printar	
-		la a0,personagem_w
-		lh a1,0(t0)
-		lh a2,2(t0) 
-		mv a3,s0
-		li a4,16		# largura do personagem
-		li a5,16		# altura do personagem
-		call PRINT
-		
-		la t0,OLD_CHAR_POS	#t0 guarda a posicao antiga do personagem
-		la a0,fundo
-		lh a1,0(t0)
-		lh a2,2(t0) 
-		mv a3,s0
-		xori a3,a3,1
-		call PRINT
-		
-		li t0,0xFF200604
-		sw s0,0(t0)
-		
-		li a0,60			# nota
-		li a1,1300			# duração
-		li a2,55			# define o instrumento
-		li a3,127			# define o volume
-		li a7,31			# define a syscall
-		ecall
-		li a0,62			# nota
-		li a1,1250			# duração
-		li a2,55			# define o instrumento
-		li a3,127			# define o volume
-		li a7,31			# define a syscall
-		ecall
+SAIDA:		saida (CHAR_POS,personagem_w,OLD_CHAR_POS)
 
 END:		li s6,0			# zerar o registrador de chaves para próxima fase
 
