@@ -197,8 +197,8 @@ NUM_CHAVES: .string "/2"
 # POSIÇÕES_FASE1
 CHAR_POS: .half 16,16		# posição do personagem (x,y)
 OLD_CHAR_POS: .half 16,16
-COG_POS: .half 64,64
-OLD_COG: .half 64,64
+COG_POS1: .half 112,64
+COG_POS2: .half 144,96
 CHAVE1: .half 192,96
 CHAVE2: .half 64,160
 MOEDA1: .half 112,16
