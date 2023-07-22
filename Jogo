@@ -1495,7 +1495,10 @@ NUM_CHAVES: .string "/3"
 # POSIÇÕES_FASE3
 CHAR_POS: .half 192,96		# posição do personagem (x,y)
 OLD_CHAR_POS: .half 192,96
-COG1: .half 64,64
+COG_POS1: .half 48,64
+COG_POS2: .half 96,80
+COG_POS3: .half 128,112
+COG_POS4: .half 144,208
 CHAVE1: .half 128,192
 CHAVE2: .half 128,32
 CHAVE3: .half 96,160
