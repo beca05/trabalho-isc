@@ -40,13 +40,10 @@ NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64
 # ITENS
 .include "./script/Imagens/arquivos .data/chave.data"
 .include "./script/Imagens/arquivos .data/moeda.data"
-.include "MACROSv21.s"
+
 
 # VIDAS
-.include "no_heart.data"
-.include "one_heart.data"
-.include "two_hearts.data"
-.include "three_hearts.data"
+.include "./script/Imagens/arquivos .data/three_hearts.data"
 
 # MACRO
 .include "macro"
@@ -78,10 +75,10 @@ SETUP: 	setup_menu(matriz1,ideia_fase1,TITULO_FASE,NUM_CHAVES)
 
 # Printa as chaves e as moedas nas posições e frames corretos para a coleta	
 		printando_imagem(CHAVE1,chave,0)
-		printando_imagem(CHAVE2,chave,1)
+		printando_imagem(CHAVE2,chave,0)
 		printando_imagem(MOEDA1,moeda,0)
 		printando_imagem(MOEDA2,moeda,1)
-		printando_imagem(MOEDA3,moeda,0)
+		printando_imagem(MOEDA3,moeda,1)
 # Printa o personagem na posição inicial, alternado os frames	
 		la t3,CHAR_POS		
 		la a0,personagem_s
@@ -354,29 +351,31 @@ DIRECAO_ATAQUE:
 		j GAME_LOOP
 		
 VER_ATAQUE_ESQ1:
-		ver_ataque_neg(CHAR_POS,16,s2,t3,s4)
+		verificacao_esq1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call VER_ATAQUE_ESQ2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels	
 		
 VER_ATAQUE_ESQ2:
-		ver_ataque_neg(CHAR_POS,32,s2,t3,s4)
+		verificacao_esq2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_ESQ		# se passar pelas 2 verificação ocorre o tiro
 		
 VER_ATAQUE_DIR1:
-		ver_ataque(CHAR_POS,16,s2,t3,s4)
+		verificacao_dir1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call VER_ATAQUE_DIR2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 		
-VER_ATAQUE_DIR2: ver_ataque(CHAR_POS,32,s2,t3,s4)
+VER_ATAQUE_DIR2: 
+		verificacao_dir2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_DIR		# se passar pelas 2 verificação ocorre o tiro
 		
-VER_ATAQUE_CIMA1: ver_ataque_neg(CHAR_POS,16,t5,s4,t2)
+VER_ATAQUE_CIMA1: 
+		verificacao_cima1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		li t5,4			# atribui o '1' que representa parede ao t5
@@ -384,7 +383,7 @@ VER_ATAQUE_CIMA1: ver_ataque_neg(CHAR_POS,16,t5,s4,t2)
 		call VER_ATAQUE_CIMA2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 
 VER_ATAQUE_CIMA2:
-		ver_ataque_neg(CHAR_POS,32,t5,s4,t2)
+		verificacao_cima2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		li t5,4			# atribui o '1' que representa parede ao t5
@@ -392,13 +391,13 @@ VER_ATAQUE_CIMA2:
 		call ATAQUE_CIMA	# se passar pelas 2 verificação ocorre o tiro
 			
 VER_ATAQUE_BAIXO1:
-		ver_ataque(CHAR_POS,16,t5,s4,t2)
+		verificacao_baixo1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		call VER_ATAQUE_BAIXO2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 		
 VER_ATAQUE_BAIXO2:
-		ver_ataque(CHAR_POS,32,t5,s4,t2)
+		verificacao_baixo2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_BAIXO	# se passar pelas 2 verificação ocorre o tiro
@@ -419,9 +418,9 @@ ATAQUE_ESQ:
 		call PRINT
 		j GAME_LOOP
 		
-ATAQUE_DIR:	ataque(CHAR_POS,tiro_a,16,a1)
+ATAQUE_DIR:	ataque(CHAR_POS,tiro_d,16,a1)
 		call PRINT
-		ataque(CHAR_POS,tiro_a,32,a1)
+		ataque(CHAR_POS,tiro_d,32,a1)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -434,9 +433,9 @@ ATAQUE_DIR:	ataque(CHAR_POS,tiro_a,16,a1)
 		call PRINT
 		j GAME_LOOP
 		
-ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_a,16,a2)
+ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_w,16,a2)
 		call PRINT
-		ataque_neg(CHAR_POS,tiro_a,32,a2)
+		ataque_neg(CHAR_POS,tiro_w,32,a2)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -450,9 +449,9 @@ ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_a,16,a2)
 		
 		j GAME_LOOP
 		
-ATAQUE_BAIXO:	ataque(CHAR_POS,tiro_a,16,a2)
+ATAQUE_BAIXO:	ataque(CHAR_POS,tiro_s,16,a2)
 		call PRINT
-		ataque(CHAR_POS,tiro_a,32,a2)
+		ataque(CHAR_POS,tiro_s,32,a2)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -513,8 +512,7 @@ VERIFICACAO_SAIDA:	li t5,2			# atribui o 2 que representa a quantidade de chave 
 
 SAIDA:		saida (CHAR_POS,personagem_w,OLD_CHAR_POS)
 		
-END:		li s5, 0 		# zerar o registrador de moedas para a próxima fase
-		li s6, 0		# zerar o registrador de chaves para a próxima fase
+END:		li s6, 0		# zerar o registrador de chaves para a próxima fase
 
 .end_macro
 
@@ -542,11 +540,11 @@ MOEDA3: .half 144,144
 .text
 SETUP: 	setup_menu(matriz2,ideia_fase2,TITULO_FASE,NUM_CHAVES)
 # Printa as chaves e as moedas nas posições e frames corretos para a coleta	
-		printando_imagem(CHAVE1,chave,0)
+		printando_imagem(CHAVE1,chave,1)
 		printando_imagem(CHAVE2,chave,1)
 		printando_imagem(MOEDA1,moeda,0)
-		printando_imagem(MOEDA2,moeda,1)
-		printando_imagem(MOEDA3,moeda,0)
+		printando_imagem(MOEDA2,moeda,0)
+		printando_imagem(MOEDA3,moeda,1)
 # Printa o personagem na posição inicial, alternado os frames	
 		la t3,CHAR_POS		
 		la a0,personagem_s
@@ -824,29 +822,31 @@ DIRECAO_ATAQUE:
 		j GAME_LOOP
 		
 VER_ATAQUE_ESQ1:
-		ver_ataque_neg(CHAR_POS,16,s2,t3,s4)
+		verificacao_esq1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call VER_ATAQUE_ESQ2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels	
 		
 VER_ATAQUE_ESQ2:
-		ver_ataque_neg(CHAR_POS,32,s2,t3,s4)
+		verificacao_esq2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_ESQ		# se passar pelas 2 verificação ocorre o tiro
 		
 VER_ATAQUE_DIR1:
-		ver_ataque(CHAR_POS,16,s2,t3,s4)
+		verificacao_dir1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call VER_ATAQUE_DIR2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 		
-VER_ATAQUE_DIR2: ver_ataque(CHAR_POS,32,s2,t3,s4)
+VER_ATAQUE_DIR2:
+		verificacao_dir2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_DIR		# se passar pelas 2 verificação ocorre o tiro
 		
-VER_ATAQUE_CIMA1: ver_ataque_neg(CHAR_POS,16,t5,s4,t2)
+VER_ATAQUE_CIMA1: 
+		verificacao_cima1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		li t5,4			# atribui o '1' que representa parede ao t5
@@ -854,7 +854,7 @@ VER_ATAQUE_CIMA1: ver_ataque_neg(CHAR_POS,16,t5,s4,t2)
 		call VER_ATAQUE_CIMA2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 
 VER_ATAQUE_CIMA2:
-		ver_ataque_neg(CHAR_POS,32,t5,s4,t2)
+		verificacao_cima2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		li t5,4			# atribui o '1' que representa parede ao t5
@@ -862,13 +862,13 @@ VER_ATAQUE_CIMA2:
 		call ATAQUE_CIMA	# se passar pelas 2 verificação ocorre o tiro
 			
 VER_ATAQUE_BAIXO1:
-		ver_ataque(CHAR_POS,16,t5,s4,t2)
+		verificacao_baixo1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		call VER_ATAQUE_BAIXO2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 		
 VER_ATAQUE_BAIXO2:
-		ver_ataque(CHAR_POS,32,t5,s4,t2)
+		verificacao_baixo2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_BAIXO	# se passar pelas 2 verificação ocorre o tiro
@@ -889,9 +889,9 @@ ATAQUE_ESQ:
 		call PRINT
 		j GAME_LOOP
 		
-ATAQUE_DIR:	ataque(CHAR_POS,tiro_a,16,a1)
+ATAQUE_DIR:	ataque(CHAR_POS,tiro_d,16,a1)
 		call PRINT
-		ataque(CHAR_POS,tiro_a,32,a1)
+		ataque(CHAR_POS,tiro_d,32,a1)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -904,9 +904,9 @@ ATAQUE_DIR:	ataque(CHAR_POS,tiro_a,16,a1)
 		call PRINT
 		j GAME_LOOP
 		
-ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_a,16,a2)
+ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_w,16,a2)
 		call PRINT
-		ataque_neg(CHAR_POS,tiro_a,32,a2)
+		ataque_neg(CHAR_POS,tiro_w,32,a2)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -920,9 +920,9 @@ ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_a,16,a2)
 		
 		j GAME_LOOP
 		
-ATAQUE_BAIXO:	ataque(CHAR_POS,tiro_a,16,a2)
+ATAQUE_BAIXO:	ataque(CHAR_POS,tiro_s,16,a2)
 		call PRINT
-		ataque(CHAR_POS,tiro_a,32,a2)
+		ataque(CHAR_POS,tiro_s,32,a2)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -1015,10 +1015,10 @@ SETUP:
 	setup_menu(matriz3,ideia_fase3,TITULO_FASE,NUM_CHAVES)
 # Printa as chaves e as moedas nas posições e frames corretos para a coleta	
 		printando_imagem(CHAVE1,chave,0)
-		printando_imagem(CHAVE2,chave,1)
-		printando_imagem(CHAVE3,chave,1)
+		printando_imagem(CHAVE2,chave,0)
+		printando_imagem(CHAVE3,chave,0)
 		printando_imagem(MOEDA1,moeda,0)
-		printando_imagem(MOEDA2,moeda,1)
+		printando_imagem(MOEDA2,moeda,0)
 		printando_imagem(MOEDA3,moeda,0)
 # Printa o personagem na posição inicial, alternado os frames	
 		la t3,CHAR_POS		
@@ -1295,29 +1295,31 @@ DIRECAO_ATAQUE:
 		j GAME_LOOP
 		
 VER_ATAQUE_ESQ1:
-		ver_ataque_neg(CHAR_POS,16,s2,t3,s4)
+		verificacao_esq1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call VER_ATAQUE_ESQ2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels	
 		
 VER_ATAQUE_ESQ2:
-		ver_ataque_neg(CHAR_POS,32,s2,t3,s4)
+		verificacao_esq2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_ESQ		# se passar pelas 2 verificação ocorre o tiro
 		
 VER_ATAQUE_DIR1:
-		ver_ataque(CHAR_POS,16,s2,t3,s4)
+		verificacao_dir1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call VER_ATAQUE_DIR2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 		
-VER_ATAQUE_DIR2: ver_ataque(CHAR_POS,32,s2,t3,s4)
+VER_ATAQUE_DIR2:
+		verificacao_dir2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_DIR		# se passar pelas 2 verificação ocorre o tiro
 		
-VER_ATAQUE_CIMA1: ver_ataque_neg(CHAR_POS,16,t5,s4,t2)
+VER_ATAQUE_CIMA1:
+		verificacao_cima1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		li t5,4			# atribui o '1' que representa parede ao t5
@@ -1325,7 +1327,7 @@ VER_ATAQUE_CIMA1: ver_ataque_neg(CHAR_POS,16,t5,s4,t2)
 		call VER_ATAQUE_CIMA2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 
 VER_ATAQUE_CIMA2:
-		ver_ataque_neg(CHAR_POS,32,t5,s4,t2)
+		verificacao_cima2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		li t5,4			# atribui o '1' que representa parede ao t5
@@ -1333,13 +1335,13 @@ VER_ATAQUE_CIMA2:
 		call ATAQUE_CIMA	# se passar pelas 2 verificação ocorre o tiro
 			
 VER_ATAQUE_BAIXO1:
-		ver_ataque(CHAR_POS,16,t5,s4,t2)
+		verificacao_baixo1(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede 
 		call VER_ATAQUE_BAIXO2	# próxima verificação, pois o tiro tem range de 2 casas = 32 pixels
 		
 VER_ATAQUE_BAIXO2:
-		ver_ataque(CHAR_POS,32,t5,s4,t2)
+		verificacao_baixo2(CHAR_POS)
 		li t5,1			# atribui o '1' que representa parede ao t5
 		beq s3,t5,GAME_LOOP	# compara se a nova posição do personagem é parede
 		call ATAQUE_BAIXO	# se passar pelas 2 verificação ocorre o tiro
@@ -1360,9 +1362,9 @@ ATAQUE_ESQ:
 		call PRINT
 		j GAME_LOOP
 		
-ATAQUE_DIR:	ataque(CHAR_POS,tiro_a,16,a1)
+ATAQUE_DIR:	ataque(CHAR_POS,tiro_d,16,a1)
 		call PRINT
-		ataque(CHAR_POS,tiro_a,32,a1)
+		ataque(CHAR_POS,tiro_d,32,a1)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -1375,9 +1377,9 @@ ATAQUE_DIR:	ataque(CHAR_POS,tiro_a,16,a1)
 		call PRINT
 		j GAME_LOOP
 		
-ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_a,16,a2)
+ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_w,16,a2)
 		call PRINT
-		ataque_neg(CHAR_POS,tiro_a,32,a2)
+		ataque_neg(CHAR_POS,tiro_w,32,a2)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -1391,9 +1393,9 @@ ATAQUE_CIMA:	ataque_neg(CHAR_POS,tiro_a,16,a2)
 		
 		j GAME_LOOP
 		
-ATAQUE_BAIXO:	ataque(CHAR_POS,tiro_a,16,a2)
+ATAQUE_BAIXO:	ataque(CHAR_POS,tiro_s,16,a2)
 		call PRINT
-		ataque(CHAR_POS,tiro_a,32,a2)
+		ataque(CHAR_POS,tiro_s,32,a2)
 		call PRINT
 		# som de tiro
 		tiro()
@@ -1494,7 +1496,7 @@ FIM: 	li a7,10
 .text
 ABERTURA:
 # Printa a imagem de abertura
-		la a0,tema_jogo_imagem.bmp2
+		la a0,tema_jogo_imagem
 		li a1,0
 		li a2,0
 		li a3,0
