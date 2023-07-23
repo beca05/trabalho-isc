@@ -1,4 +1,3 @@
-	
 .macro coleta_chave()
 .text
 		addi s6, s6, 1		# incrementa-se as chaves, toda vez que entra nessa label
@@ -297,4 +296,116 @@ POS_COR: .half 252,200
 		li a3,127			# define o volume
 		li a7,31			# define a syscall
 		ecall	
+.end_macro
+.macro verificacao_esq1(%posição)
+		la t0,%posição						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_esq2(%posição)
+		la t0,%posição						
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do x para andar para esquerda
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4		
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_dir1(%posição)
+		la t0,%posição							
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,16		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_dir2(%posição)
+		la t0,%posição							
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)			
+		lh t3,2(t0)		
+
+		# Procedimentos para verificação de parede
+		lh s4,0(t0)		# carrega o x para o registrador s4
+		addi s4,s4,32		# soma 16 ao x para andar para direita
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul s2,t3,t5
+		add s2,s1,s2		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,s4
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_cima1(%posição)
+		la t0, %posição
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)					
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-16		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_cima2(%posição)
+		la t0, %posição
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)					
+		lh t3,2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,-32		# subtrai 16 do y para andar para cima
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_baixo1(%posição)
+		la t0,%posição
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)		
+		lh t3, 2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,16		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
+.end_macro
+.macro verificacao_baixo2(%posição)
+		la t0,%posição
+		lh t2,0(t0)		# carrega a posição do personagem (x,y)		
+		lh t3, 2(t0)		
+		
+		# Procedimentos para verificação de parede
+		lh s4,2(t0)		# carrega o y para o registrador s4
+		addi s4,s4,32		# soma 16 ao y para andar para baixo
+		li t5,320		# atribui 320 ao t5 para fazer o cálculo do endereço da posição do personagem na matriz
+		mul t5,s4,t5
+		add s2,s1,t5		# cálculo para chegar ao endereço da matriz correspondente a posição do personagem
+		add s2,s2,t2
+		lb s3,0(s2)
 .end_macro
