@@ -43,7 +43,10 @@ NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64
 
 
 # VIDAS
-.include "./script/Imagens/arquivos .data/three_hearts.data"
+.include "no_heart.data"
+.include "one_heart.data"
+.include "two_hearts.data"
+.include "three_hearts.data"
 
 # MACRO
 .include "macro"
