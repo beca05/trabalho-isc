@@ -47,9 +47,11 @@ NOTAS: 60,441,64,441,60,1764,64,294,64,294,65,441,64,441,62,294,60,294,62,441,64
 .include "one_heart.data"
 .include "two_hearts.data"
 .include "three_hearts.data"
+.include "MACROSv21.s"
+
 
 # MACRO
-.include "macro"
+.include "macros"
 #####################################
 #		MACROS		    #
 #####################################
@@ -473,23 +475,7 @@ COLETA_CHAVE:	coleta_chave()
 COLETA_MOEDA:	coleta_moeda()
 		j GAME_LOOP	
 		
-PRINT:		li t0,0xFF0
-		add t0,t0,a3
-		slli t0,t0,20
-		
-		add t0,t0,a1
-		
-		li t1,320
-		mul t1,t1,a2
-		add t0,t0,t1
-		
-		addi t1,a0,8
-		
-		mv t2,zero
-		mv t3,zero
-		
-		lw t4,0(a0)
-		lw t5,4(a0)
+PRINT:		print()
 	
 PRINT_LINHA:	lw t6,0(t1)
 		sw t6,0(t0)
@@ -944,23 +930,7 @@ COLETA_CHAVE:	coleta_chave()
 COLETA_MOEDA:	coleta_moeda()
 		j GAME_LOOP	
 		
-PRINT:		li t0,0xFF0
-		add t0,t0,a3
-		slli t0,t0,20
-		
-		add t0,t0,a1
-		
-		li t1,320
-		mul t1,t1,a2
-		add t0,t0,t1
-		
-		addi t1,a0,8
-		
-		mv t2,zero
-		mv t3,zero
-		
-		lw t4,0(a0)
-		lw t5,4(a0)
+PRINT:		print()
 	
 PRINT_LINHA:	lw t6,0(t1)
 		sw t6,0(t0)
@@ -1416,23 +1386,7 @@ COLETA_CHAVE:	coleta_chave()
 		
 COLETA_MOEDA:	coleta_moeda()
 		j GAME_LOOP	
-PRINT:		li t0,0xFF0
-		add t0,t0,a3
-		slli t0,t0,20
-		
-		add t0,t0,a1
-		
-		li t1,320
-		mul t1,t1,a2
-		add t0,t0,t1
-		
-		addi t1,a0,8
-		
-		mv t2,zero
-		mv t3,zero
-		
-		lw t4,0(a0)
-		lw t5,4(a0)
+PRINT:		print()
 	
 PRINT_LINHA:	lw t6,0(t1)
 		sw t6,0(t0)
@@ -1561,23 +1515,7 @@ FINAL:		la a0,final
 		call PRINT
 		ret
 		
-PRINT:		li t0,0xFF0
-		add t0,t0,a3
-		slli t0,t0,20
-		
-		add t0,t0,a1
-		
-		li t1,320
-		mul t1,t1,a2
-		add t0,t0,t1
-		
-		addi t1,a0,8
-		
-		mv t2,zero
-		mv t3,zero
-		
-		lw t4,0(a0)
-		lw t5,4(a0)
+PRINT:		print()
 	
 PRINT_LINHA:	lw t6,0(t1)
 		sw t6,0(t0)
